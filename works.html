@@ -22,6 +22,7 @@
   <a href="about.html" class="eng">ABOUT</a>
   <a href="works.html" class="eng">MY WORKS</a>
   <a href="gears.html" class="eng">GEARS</a>
+  <a href="workflow.html" class="eng">WORKFLOW</a>
   <a href="contact.html" class="eng">CONTACT</a>
 </nav>
 
@@ -32,7 +33,7 @@
 
 <main class="stream" id="works">
   <div class="section-head" style="padding-top:36px;">
-    <h2 class="eng">Selected by Photopills</h2>
+    <h2 class="eng">by Photopills</h2>
     <div class="eyebrow eng eyebrow-below">Photopiller of the Day</div>
   </div>
   <figure class="frame" data-id="01">
@@ -47,7 +48,7 @@
   </figure>
 
   <div class="section-head">
-    <h2 class="eng">Selected by Sony Korea (MyAlpha365)</h2>
+    <h2 class="eng">by Sony Korea (MyAlpha365)</h2>
     <div class="eyebrow eyebrow-below">2025년 9월 BW, 2026년 8월 천체, 밤하늘</div>
   </div>
   <figure class="frame" data-id="06">
@@ -161,6 +162,7 @@
       <p class="desc desc-kr" id="lbDescKr"></p>
       <p class="exif" id="lbExif"></p>
       <p class="credit" id="lbCredit"></p>
+      <p class="link" id="lbLink"><a id="lbLinkA" href="" target="_blank" rel="noopener">Instagram에서 보기 ↗</a></p>
     </div>
   </div>
 </div>
@@ -199,6 +201,7 @@
     <a href="about.html">About</a>
     <a href="works.html">Works</a>
     <a href="gears.html">Gears</a>
+    <a href="workflow.html">Workflow</a>
     <a href="contact.html">Contact</a>
   </nav>
   <div class="footer-legal eng">
@@ -218,7 +221,8 @@
     "descEn": "A young bride, burdened by conflict with her in-laws, attempted to cross the frozen lake, but the ice broke and she drowned. Out of compassion, the gods created a small island at that very place. After hearing this story, I wanted to capture the sun quietly resting upon the hand of the Jizo statue, as if watching over a soul steeped in sorrow, and weave my own narrative into the scene.",
     "descKr": "시댁과의 갈등에 시달리던 한 젊은 신부가 얼어붙은 호수를 건너려다 얼음이 깨져 물에 빠져 죽었다. 신들은 그 자비로움으로 바로 그 자리에 작은 섬을 만들어주었다. 이 이야기를 듣고 나서, 슬픔에 잠긴 영혼을 지켜보듯 지장보살의 손 위에 고요히 머무는 태양을 담아, 그 장면에 나만의 이야기를 엮어보고 싶었다.",
     "exif": "Sony A7C · FE 24-70mm F4 ZA OSS · 70mm · 1/1250s · f/20 · ISO 200",
-    "credit": "PhotoPills Today's Photopiller · 2025.09.12"
+    "credit": "PhotoPills Today's Photopiller · 2025.09.12",
+    "link": "https://www.instagram.com/p/DOeSVQLDOwL/"
   },
   "19": {
     "id": "19",
@@ -227,7 +231,8 @@
     "descEn": "Kuguri-iwa Rock, a famous sunset spot near Shimonoseki, Japan. This hidden gem is only accessible during low tide, and I took a risk to go out on a cloudy day for my composition.",
     "descKr": "쿠구리 바위는 일본 시모노세키 인근 유명한 일몰 촬영지이다. 이 숨은 명소는 간조 때만 접근할 수 있는데, 원하는 구도를 위해 구름이 많은 날을 택했다.",
     "exif": "Sony A7C · 14mm · f/13 · 1/45, 1/200, 1/750s(HDR) · ISO 400",
-    "credit": "PhotoPills Photopiller of the Day · 2026.09.02"
+    "credit": "PhotoPills Photopiller of the Day · 2026.09.02",
+    "link": "https://www.instagram.com/p/DctmdYcuL3J/"
   },
   "06": {
     "id": "06",
@@ -392,6 +397,8 @@
   const lbDescKr = document.getElementById('lbDescKr');
   const lbExif = document.getElementById('lbExif');
   const lbCredit = document.getElementById('lbCredit');
+  const lbLink = document.getElementById('lbLink');
+  const lbLinkA = document.getElementById('lbLinkA');
 
   function openLightbox(id) {
     const d = PHOTO_DATA[id];
@@ -409,6 +416,8 @@
     lbExif.style.display = d.exif ? '' : 'none';
     lbCredit.textContent = d.credit || '';
     lbCredit.style.display = d.credit ? '' : 'none';
+    lbLinkA.href = d.link || '';
+    lbLink.style.display = d.link ? '' : 'none';
     lightbox.classList.add('active');
     lightbox.scrollTop = 0;
   }

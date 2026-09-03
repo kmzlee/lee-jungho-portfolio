@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lee Jungho — Workflow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="workflow">
+
+<header class="topbar">
+  <div class="wordmark"><a href="index.html">LEE JUNGHO</a> <span class="sep">|</span> <a href="contact.html" class="contact-link">CONTACT</a></div>
+  <button class="menu-btn" id="menuBtn" aria-label="menu">☰</button>
+</header>
+
+<nav class="nav-overlay" id="navOverlay">
+  <button class="nav-close" id="navClose" aria-label="close menu">&times;</button>
+  <a href="index.html" class="eng">HOME</a>
+  <a href="about.html" class="eng">ABOUT</a>
+  <a href="works.html" class="eng">MY WORKS</a>
+  <a href="gears.html" class="eng">GEARS</a>
+  <a href="workflow.html" class="eng">WORKFLOW</a>
+  <a href="contact.html" class="eng">CONTACT</a>
+</nav>
+
+<section class="page-hero" style="border-bottom:none; padding-bottom:0;">
+  <div class="eyebrow eng">WORKFLOW</div>
+  <h1>Workflow</h1>
+  <p class="note">촬영 전에 하는 계산 — 무엇을 조사하고, 어떻게 판단했는지. 프로젝트를 눌러 보세요.</p>
+</section>
+
+<section class="wf-wrap">
+  <div class="wf-shelf" id="wfShelf">
+    <button class="wf-item" data-project="kuguri" type="button">
+      <img src="images/workflow/covers/kuguri-cover.jpg" alt="Project : Kuguri Rock Sunset">
+    </button>
+    <button class="wf-item" data-project="deepsky" type="button">
+      <img src="images/workflow/covers/deepsky-cover.jpg" alt="Project : Deep Sky">
+    </button>
+    <button class="wf-item" data-project="kitanagato" type="button">
+      <img src="images/workflow/covers/kita-nagato-cover.jpg" alt="Project : Kita Nagato Sunset">
+    </button>
+  </div>
+
+  <div class="wf-preview" id="wfPreview">
+    <div class="wf-preview-media">
+      <img id="wfPreviewImg" src="" alt="">
+    </div>
+    <div class="wf-preview-body">
+      <div class="wf-preview-eyebrow eng" id="wfPreviewEyebrow"></div>
+      <h2 id="wfPreviewTitle"></h2>
+      <p class="wf-preview-loc" id="wfPreviewLoc"></p>
+      <p class="wf-preview-summary" id="wfPreviewSummary"></p>
+      <a class="wf-preview-link eng" id="wfPreviewLink" href="" target="_blank" rel="noopener">자세히 보기 ↗</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const PROJECTS = {
+    kuguri: {
+      eyebrow: "FIELD PLANNING · 2026",
+      title: "Kuguri Rock Sunset",
+      loc: "本山岬 くぐり岩 · Sanyo-Onoda, Yamaguchi · 33.955°N 131.066°E",
+      img: "images/workflow/covers/kuguri-cover.jpg",
+      summary: "기상청 조위표와 일몰·박명 시각을 132일치 겹쳐 촬영 가능일 14일을 찾아낸 기록. 실제 결과는 계산에 없던 하루였습니다.",
+      link: "workflow/kuguri-rock-sunset.html"
+    },
+    deepsky: {
+      eyebrow: "NIGHT SKY PLANNING · 2026–2027",
+      title: "Project: Deepsky",
+      loc: "秋吉台 冠山 · Akiyoshidai Kanzan, Yamaguchi",
+      img: "images/workflow/covers/deepsky-cover.jpg",
+      summary: "보유 장비의 화각·노출 한계를 기준으로 161개 밤의 무월광 시간을 계산해 타겟 다섯의 촬영 일정을 짰습니다.",
+      link: "workflow/deepsky.html"
+    },
+    kitanagato: {
+      eyebrow: "FIELD PLANNING",
+      title: "Kita Nagato Sunset",
+      loc: "",
+      img: "images/workflow/covers/kita-nagato-cover.jpg",
+      summary: "자료 준비 중입니다.",
+      link: ""
+    }
+  };
+
+  const wfShelf = document.getElementById('wfShelf');
+  const wfPreview = document.getElementById('wfPreview');
+  const wfPreviewImg = document.getElementById('wfPreviewImg');
+  const wfPreviewEyebrow = document.getElementById('wfPreviewEyebrow');
+  const wfPreviewTitle = document.getElementById('wfPreviewTitle');
+  const wfPreviewLoc = document.getElementById('wfPreviewLoc');
+  const wfPreviewSummary = document.getElementById('wfPreviewSummary');
+  const wfPreviewLink = document.getElementById('wfPreviewLink');
+  const wfItems = wfShelf.querySelectorAll('.wf-item');
+
+  function showProject(key, opts) {
+    const p = PROJECTS[key];
+    if (!p) return;
+    opts = opts || {};
+    wfItems.forEach(btn => btn.classList.toggle('active', btn.dataset.project === key));
+    wfShelf.classList.add('has-active');
+    wfPreview.classList.remove('visible');
+    const apply = () => {
+      wfPreviewImg.src = p.img;
+      wfPreviewImg.alt = p.title;
+      wfPreviewEyebrow.textContent = p.eyebrow;
+      wfPreviewTitle.textContent = p.title;
+      wfPreviewLoc.textContent = p.loc;
+      wfPreviewLoc.style.display = p.loc ? '' : 'none';
+      wfPreviewSummary.textContent = p.summary;
+      wfPreviewLink.href = p.link;
+      wfPreviewLink.style.display = p.link ? '' : 'none';
+      wfPreview.classList.add('visible');
+    };
+    if (opts.instant) apply();
+    else window.requestAnimationFrame(() => setTimeout(apply, 90));
+  }
+
+  wfItems.forEach(btn => {
+    btn.addEventListener('click', () => showProject(btn.dataset.project));
+  });
+
+  showProject('kuguri', { instant: true });
+</script>
+<section class="contact" id="contact-block">
+  <div class="contact-bg" style="background-image:url('images/09.jpg');"></div>
+  <div class="contact-content">
+    <div class="eyebrow eng">GET IN TOUCH</div>
+    <h2>Contact</h2>
+    <div class="contact-grid">
+      <a class="contact-card" href="mailto:optimo056@gmail.com">
+        <span class="c-label eng">EMAIL</span>
+        <span class="c-value">optimo056@gmail.com</span>
+      </a>
+      <a class="contact-card" href="tel:+821066498609">
+        <span class="c-label eng">PHONE</span>
+        <span class="c-value">+82 10-6649-8609</span>
+      </a>
+      <a class="contact-card" href="https://www.instagram.com/hukku_bukku/" target="_blank" rel="noopener">
+        <span class="c-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="12" cy="12" r="4.2"/>
+            <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="c-label eng">INSTAGRAM</span>
+        <span class="c-value eng">HUKKUBUKKU</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer-bar">
+  <nav class="footer-nav eng">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="works.html">Works</a>
+    <a href="gears.html">Gears</a>
+    <a href="workflow.html">Workflow</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <div class="footer-legal eng">
+    <a href="#">Terms And Conditions</a>
+    <a href="#">Imprint</a>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
