@@ -80,6 +80,7 @@
       <p class="wf-preview-summary" id="wfPreviewSummary"></p>
       <a class="wf-preview-link eng" id="wfPreviewLink" href="" target="_blank" rel="noopener">자세히 보기 ↗</a>
     </div>
+    <button class="wf-preview-close" id="wfPreviewClose" type="button" aria-label="close">&times;</button>
   </div>
 </section>
 
@@ -131,6 +132,7 @@
   const wfPreviewSummary = document.getElementById('wfPreviewSummary');
   const wfPreviewLink = document.getElementById('wfPreviewLink');
   const wfPreviewMediaLink = document.getElementById('wfPreviewMediaLink');
+  const wfPreviewClose = document.getElementById('wfPreviewClose');
   const wfItems = wfShelf.querySelectorAll('.wf-item');
 
   const isStacked = () => window.matchMedia('(max-width: 900px)').matches;
@@ -262,16 +264,14 @@
       wfPreview.classList.add('visible');
     };
     window.requestAnimationFrame(() => setTimeout(apply, slides ? 450 : 90));
-    if (isStacked() && wasClosed) {
-      // bring the panel up but leave the bottom of the wheel in frame
-      setTimeout(() => {
-        const top = wfPreview.getBoundingClientRect().top + window.scrollY - 96;
-        window.scrollTo({ top: top, behavior: 'smooth' });
-      }, 260);
+    if (isStacked()) {
+      wfPreview.scrollTop = 0;
+      document.documentElement.classList.add('wf-sheet-open');
     }
   }
 
   function clearSelection() {
+    document.documentElement.classList.remove('wf-sheet-open');
     if (!wfWrap.classList.contains('has-selection')) return;
     wfPreview.classList.remove('visible');
     wfWrap.classList.remove('has-selection');
@@ -285,6 +285,11 @@
       if (Math.round(target) !== i) go(i);
       showProject(btn.dataset.project);
     });
+  });
+
+  wfPreviewClose.addEventListener('click', e => {
+    e.stopPropagation();
+    clearSelection();
   });
 
   // clicking the stage outside the shelf / the open project sends it back
@@ -314,7 +319,13 @@
   sizeStage();
   setHint();
   render();
-  window.addEventListener('resize', () => { sizeStage(); setHint(); render(); });
+  window.addEventListener('resize', () => {
+    sizeStage(); setHint(); render();
+    document.documentElement.classList.toggle(
+      'wf-sheet-open',
+      isStacked() && wfWrap.classList.contains('has-selection')
+    );
+  });
 
   // open the gate once the first frame is on screen
   window.requestAnimationFrame(() => {

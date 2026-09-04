@@ -510,6 +510,18 @@ figure.frame:hover .info-icon{
   transition:opacity 0.2s ease, border-color 0.2s ease;
 }
 .wf-preview-link:hover{ opacity:0.7; border-color:rgba(255,255,255,0.5); }
+.wf-preview-close{
+  display:none;
+  position:fixed; z-index:2;
+  top:max(16px, env(safe-area-inset-top)); right:14px;
+  width:42px; height:42px;
+  align-items:center; justify-content:center;
+  background:none; border:none; padding:0;
+  color:var(--fg); font-size:26px; line-height:1;
+  cursor:pointer; opacity:0.75;
+  transition:opacity 0.2s ease;
+}
+.wf-preview-close:hover{ opacity:1; }
 
 /* contact / shared footer */
 .contact{
@@ -640,12 +652,32 @@ figure.frame:hover .info-icon{
   .wf-gear{ width:28px; height:28px; }
   .wf-shelf-hint{ bottom:12px; font-size:9px; letter-spacing:0.18em; }
   .wf-item.focused{ box-shadow:0 0 0 1px rgba(255,255,255,0.2), 0 16px 34px rgba(0,0,0,0.6); }
-  /* the closed panel must not leave a dead band under the wheel */
+  /* the project opens as a sheet over the wheel, instead of repeating the
+     same cover again underneath it */
   .wf-preview{
-    flex:0 0 auto;
-    height:0; min-height:0; padding:0; overflow:hidden;
+    position:fixed; inset:0; z-index:120;
+    flex:0 0 auto; height:auto; min-height:0;
+    padding:max(70px, calc(env(safe-area-inset-top) + 54px)) 20px
+            max(44px, calc(env(safe-area-inset-bottom) + 30px));
+    background:rgba(6,6,6,0.965);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    overflow-y:auto; overscroll-behavior:contain;
     align-items:center; justify-content:flex-start;
+    transform:translateY(16px);
+    transition:opacity 0.35s ease,
+               transform 0.35s cubic-bezier(0.2,0.7,0.3,1),
+               visibility 0s linear 0.35s;
   }
-  .wf-preview.visible{ height:auto; overflow:visible; padding:30px 18px 46px; }
-  .wf-preview-media, .wf-preview-body{ max-width:520px; }
+  .wf-preview.visible{
+    transform:translateY(0);
+    transition:opacity 0.35s ease,
+               transform 0.35s cubic-bezier(0.2,0.7,0.3,1),
+               visibility 0s;
+  }
+  .wf-preview-close{ display:flex; }
+  .wf-preview-media{ aspect-ratio:16/9; margin-bottom:22px; }
+  .wf-preview-media, .wf-preview-body{ max-width:560px; }
+  .wf-shelf.has-active{ border-bottom:none; }
+  /* the page behind the sheet stays put */
+  html.wf-sheet-open, html.wf-sheet-open body{ overflow:hidden; }
 }
