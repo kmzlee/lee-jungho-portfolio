@@ -133,7 +133,7 @@
   const wfPreviewMediaLink = document.getElementById('wfPreviewMediaLink');
   const wfItems = wfShelf.querySelectorAll('.wf-item');
 
-  const isStacked = () => window.matchMedia('(max-width: 640px)').matches;
+  const isStacked = () => window.matchMedia('(max-width: 900px)').matches;
 
   /* ---------- the wheel ---------------------------------------------------
      Covers live on a drum, 60 degrees apart. `pos` is a float index that the
@@ -147,16 +147,6 @@
   let pos = -0.62, target = -0.62, raf = null, snapTimer = null;
 
   function render() {
-    if (isStacked()) {
-      wfItems.forEach(el => {
-        el.style.transform = '';
-        el.style.opacity = '';
-        el.style.pointerEvents = '';
-        el.classList.remove('focused');
-      });
-      if (wfGear) wfGear.style.transform = '';
-      return;
-    }
     const front = ((Math.round(pos) % N) + N) % N;
     wfItems.forEach((el, i) => {
       // wrap the offset so the wheel always has a card above and below —
@@ -194,7 +184,6 @@
   }
 
   wfWrap.addEventListener('wheel', e => {
-    if (isStacked()) return;
     if (e.target.closest('.wf-preview')) return;   // let the page scroll there
     const dy = e.deltaY;
     // at either end let the page take the scroll back
@@ -205,22 +194,38 @@
     snapTimer = setTimeout(settle, 130);
   }, { passive: false });
 
-  let touchY = null;
-  wfWrap.addEventListener('touchstart', e => {
-    if (isStacked()) return;
-    touchY = e.touches[0].clientY;
+  let tX = 0, tY = 0, tLock = null;
+  wfDrum.addEventListener('touchstart', e => {
+    tX = e.touches[0].clientX;
+    tY = e.touches[0].clientY;
+    tLock = null;
   }, { passive: true });
-  wfWrap.addEventListener('touchmove', e => {
-    if (isStacked() || touchY === null) return;
-    const y = e.touches[0].clientY;
-    go(target + (touchY - y) / 90);
-    touchY = y;
+  wfDrum.addEventListener('touchmove', e => {
+    const x = e.touches[0].clientX, y = e.touches[0].clientY;
+    const dy = tY - y;
+    if (tLock === null) {
+      if (Math.abs(dy) < 6 && Math.abs(x - tX) < 6) return;
+      // hand the gesture to the page when it is sideways, or when the wheel
+      // is already at the end it is being pushed towards
+      const atEnd = (target <= 0.001 && dy < 0) || (target >= N - 1 - 0.001 && dy > 0);
+      tLock = (Math.abs(dy) > Math.abs(x - tX) && !atEnd) ? 'drum' : 'page';
+    }
+    // touch-action keeps the browser out of vertical drags on the card, so a
+    // gesture the wheel does not want is passed on to the page by hand
+    if (tLock !== 'drum') {
+      window.scrollBy(0, dy);
+      tX = x; tY = y;
+      return;
+    }
+    e.preventDefault();
+    go(target + dy / 150);
+    tX = x; tY = y;
     clearTimeout(snapTimer);
     snapTimer = setTimeout(settle, 130);
-  }, { passive: true });
+  }, { passive: false });
+  wfDrum.addEventListener('touchend', () => { tLock = null; }, { passive: true });
 
   wfShelf.addEventListener('keydown', e => {
-    if (isStacked()) return;
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go(Math.round(target) + 1); settle(); }
     if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); go(Math.round(target) - 1); settle(); }
   });
@@ -231,7 +236,8 @@
     if (!p) return;
     // first pick = the shelf still has to glide to the left, so hold the
     // preview back until that move is nearly done
-    const slides = !wfWrap.classList.contains('has-selection') && !isStacked();
+    const wasClosed = !wfWrap.classList.contains('has-selection');
+    const slides = wasClosed && !isStacked();
     wfItems.forEach(btn => btn.classList.toggle('active', btn.dataset.project === key));
     wfWrap.classList.add('has-selection');
     wfShelf.classList.add('has-active');
@@ -256,6 +262,13 @@
       wfPreview.classList.add('visible');
     };
     window.requestAnimationFrame(() => setTimeout(apply, slides ? 450 : 90));
+    if (isStacked() && wasClosed) {
+      // bring the panel up but leave the bottom of the wheel in frame
+      setTimeout(() => {
+        const top = wfPreview.getBoundingClientRect().top + window.scrollY - 96;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }, 260);
+    }
   }
 
   function clearSelection() {
@@ -269,7 +282,7 @@
   wfItems.forEach((btn, i) => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      if (!isStacked() && Math.round(target) !== i) { go(i); }
+      if (Math.round(target) !== i) go(i);
       showProject(btn.dataset.project);
     });
   });
@@ -290,9 +303,18 @@
     const stage = Math.max(420, window.innerHeight - h);
     document.documentElement.style.setProperty('--wf-stage', stage + 'px');
   }
+  const hintEl = document.querySelector('.wf-shelf-hint');
+  function setHint() {
+    if (!hintEl) return;
+    hintEl.innerHTML = isStacked()
+      ? 'Swipe to turn &middot; Tap to open'
+      : 'Scroll to turn &middot; Click to open';
+  }
+
   sizeStage();
+  setHint();
   render();
-  window.addEventListener('resize', () => { sizeStage(); render(); });
+  window.addEventListener('resize', () => { sizeStage(); setHint(); render(); });
 
   // open the gate once the first frame is on screen
   window.requestAnimationFrame(() => {
