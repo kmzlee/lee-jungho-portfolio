@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="workflow">
+<script>document.documentElement.classList.add('js-gate');</script>
 
 <header class="topbar">
   <div class="wordmark"><a href="index.html">LEE JUNGHO</a> <span class="sep">|</span> <a href="contact.html" class="contact-link">CONTACT</a></div>
@@ -26,7 +27,7 @@
   <a href="contact.html" class="eng">CONTACT</a>
 </nav>
 
-<section class="page-hero" style="border-bottom:none; padding-bottom:0;">
+<section class="page-hero" style="border-bottom:none;">
   <div class="eyebrow eng">WORKFLOW</div>
   <h1>Workflow</h1>
   <p class="note">촬영 전에 하는 계산 — 무엇을 조사하고, 어떻게 판단했는지. 프로젝트를 눌러 보세요.</p>
@@ -34,6 +35,12 @@
 </section>
 
 <section class="wf-wrap" id="wfWrap">
+  <div class="wf-gate" aria-hidden="true">
+    <span class="wf-gate-panel top"></span>
+    <span class="wf-gate-panel bottom"></span>
+    <span class="wf-gate-seam"></span>
+  </div>
+
   <div class="wf-spacer" aria-hidden="true"></div>
 
   <div class="wf-shelf" id="wfShelf">
@@ -150,8 +157,46 @@
     window.requestAnimationFrame(() => setTimeout(apply, slides ? 450 : 90));
   }
 
+  function clearSelection() {
+    if (!wfWrap.classList.contains('has-selection')) return;
+    wfPreview.classList.remove('visible');
+    wfWrap.classList.remove('has-selection');
+    wfShelf.classList.remove('has-active');
+    wfItems.forEach(btn => btn.classList.remove('active'));
+  }
+
   wfItems.forEach(btn => {
-    btn.addEventListener('click', () => showProject(btn.dataset.project));
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      showProject(btn.dataset.project);
+    });
+  });
+
+  // clicking the stage outside the shelf / the open project sends it back
+  wfWrap.addEventListener('click', e => {
+    if (e.target.closest('.wf-shelf, .wf-preview-media, .wf-preview-body')) return;
+    clearSelection();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') clearSelection();
+  });
+
+  // the shelf fills whatever the title leaves behind
+  const heroEl = document.querySelector('.page-hero');
+  function sizeStage() {
+    const h = heroEl ? heroEl.getBoundingClientRect().height : 200;
+    const stage = Math.max(420, window.innerHeight - h);
+    document.documentElement.style.setProperty('--wf-stage', stage + 'px');
+  }
+  sizeStage();
+  window.addEventListener('resize', sizeStage);
+
+  // open the gate once the first frame is on screen
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      wfWrap.classList.add('gate-open');
+      document.documentElement.classList.add('gate-open');
+    });
   });
 </script>
 <section class="contact" id="contact-block">

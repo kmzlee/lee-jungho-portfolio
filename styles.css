@@ -82,6 +82,11 @@ header.topbar{
 .page-hero p.note{
   margin-top:18px; font-size:13px; color:var(--fg-dim); max-width:520px; line-height:1.8;
 }
+/* workflow leads with the shelf, so its hero is trimmed right down */
+body[data-page="workflow"] .page-hero{ padding:84px 28px 20px; }
+body[data-page="workflow"] .page-hero .eyebrow{ margin-bottom:8px; }
+body[data-page="workflow"] .page-hero h1{ font-size:clamp(26px, 3vw, 38px); line-height:1.05; }
+body[data-page="workflow"] .page-hero p.note{ margin-top:10px; }
 
 /* hero (home) */
 .hero{
@@ -327,31 +332,61 @@ figure.frame:hover .info-icon{
 /* workflow — kontakt-style shelf + preview */
 .wf-swipe-hint{ display:none; }
 .wf-shelf-fade{ display:none; }
+/* --wf-stage is set by JS to (viewport - hero), so the shelf fills exactly
+   what is left below the title */
 .wf-wrap{
+  position:relative; overflow:hidden;
   display:flex; align-items:stretch;
   border-top:1px solid var(--line);
-  /* the unselected shelf should read as one centered block on screen,
-     so it sizes to the viewport instead of a fixed height */
-  min-height:max(460px, calc(100vh - 340px));
+  min-height:var(--wf-stage, calc(100vh - 210px));
 }
 .wf-spacer{
   flex:0 0 auto;
-  width:calc((100% - 380px) / 2);
+  width:calc((100% - 560px) / 2);
   transition:width 0.8s cubic-bezier(0.65,0,0.35,1);
 }
 .wf-wrap.has-selection .wf-spacer{ width:0; }
+
+/* gate: the stage starts black and parts from a centre seam */
+.wf-gate{ display:none; }
+.js-gate .wf-gate{
+  display:block; position:absolute; inset:0; z-index:6; pointer-events:none;
+}
+.wf-gate-panel{
+  position:absolute; left:0; right:0; height:50.5%;
+  background:var(--bg);
+  transition:transform 0.85s cubic-bezier(0.76,0,0.24,1) 0.5s;
+}
+.wf-gate-panel.top{ top:0; }
+.wf-gate-panel.bottom{ bottom:0; }
+.wf-wrap.gate-open .wf-gate-panel.top{ transform:translateY(-100%); }
+.wf-wrap.gate-open .wf-gate-panel.bottom{ transform:translateY(100%); }
+.wf-gate-seam{
+  position:absolute; left:0; right:0; top:50%;
+  height:1px; background:rgba(255,255,255,0.65);
+  transform:scaleX(0);
+  transition:transform 0.5s cubic-bezier(0.65,0,0.35,1) 0.12s,
+             opacity 0.35s ease 0.55s;
+}
+.wf-wrap.gate-open .wf-gate-seam{ transform:scaleX(1); opacity:0; }
+.js-gate .page-hero{ opacity:0; transition:opacity 0.7s ease 0.45s; }
+.js-gate.gate-open .page-hero{ opacity:1; }
+@media (prefers-reduced-motion: reduce){
+  .js-gate .wf-gate{ display:none; }
+  .js-gate .page-hero{ opacity:1; transition:none; }
+}
 .wf-shelf{
   display:flex; flex-direction:column;
-  width:380px; flex-shrink:0;
+  width:560px; flex-shrink:0;
   border-right:1px solid transparent;
   transition:width 0.8s cubic-bezier(0.65,0,0.35,1),
              border-color 0.4s ease 0.35s;
 }
-.wf-shelf.has-active{ width:320px; border-right-color:var(--line); }
+.wf-shelf.has-active{ width:380px; border-right-color:var(--line); }
 .wf-shelf-hint{
   flex:0 0 auto;
   display:flex; align-items:center; justify-content:center;
-  height:56px; overflow:hidden;
+  height:44px; overflow:hidden;
   font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
   color:var(--fg-dim);
   transition:height 0.6s cubic-bezier(0.65,0,0.35,1), opacity 0.3s ease;
@@ -361,9 +396,9 @@ figure.frame:hover .info-icon{
   position:relative;
   display:block;
   flex:0 0 auto;
-  /* fixed, viewport-derived height: the 4 covers + hint exactly fill the
-     centered shelf, and nothing resizes when the preview opens */
-  height:clamp(104px, calc((100vh - 396px) / 4), 180px);
+  /* fixed height: the 4 covers + hint exactly fill the centered shelf,
+     and nothing resizes when the preview opens */
+  height:clamp(128px, calc((var(--wf-stage, 70vh) - 44px) / 4), 280px);
   border:none; border-bottom:1px solid var(--line);
   padding:0; margin:0;
   background:#000;
@@ -373,7 +408,7 @@ figure.frame:hover .info-icon{
 }
 .wf-item img{
   position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; display:block;
+  object-fit:cover; object-position:center bottom; display:block;
   filter:brightness(0.42) saturate(1.05);
   transform:scale(1.0);
   transition:filter 0.4s ease, transform 0.6s ease;
