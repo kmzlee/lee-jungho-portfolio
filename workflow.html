@@ -46,9 +46,10 @@
   </div>
 
   <div class="wf-preview" id="wfPreview">
-    <div class="wf-preview-media">
+    <a class="wf-preview-media" id="wfPreviewMediaLink" target="_blank" rel="noopener" aria-label="자세히 보기">
       <img id="wfPreviewImg" src="" alt="">
-    </div>
+      <span class="wf-preview-media-hint eng">View Project &#8599;</span>
+    </a>
     <div class="wf-preview-body">
       <div class="wf-preview-eyebrow eng" id="wfPreviewEyebrow"></div>
       <h2 id="wfPreviewTitle"></h2>
@@ -95,6 +96,7 @@
   const wfPreviewLoc = document.getElementById('wfPreviewLoc');
   const wfPreviewSummary = document.getElementById('wfPreviewSummary');
   const wfPreviewLink = document.getElementById('wfPreviewLink');
+  const wfPreviewMediaLink = document.getElementById('wfPreviewMediaLink');
   const wfItems = wfShelf.querySelectorAll('.wf-item');
 
   function showProject(key, opts) {
@@ -114,6 +116,13 @@
       wfPreviewSummary.textContent = p.summary;
       wfPreviewLink.href = p.link;
       wfPreviewLink.style.display = p.link ? '' : 'none';
+      if (p.link) {
+        wfPreviewMediaLink.setAttribute('href', p.link);
+        wfPreviewMediaLink.classList.add('is-link');
+      } else {
+        wfPreviewMediaLink.removeAttribute('href');
+        wfPreviewMediaLink.classList.remove('is-link');
+      }
       wfPreview.classList.add('visible');
     };
     if (opts.instant) apply();
