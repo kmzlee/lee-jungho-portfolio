@@ -33,7 +33,9 @@
   <p class="wf-swipe-hint eng">&#8592; Swipe to see all projects &#8594;</p>
 </section>
 
-<section class="wf-wrap">
+<section class="wf-wrap" id="wfWrap">
+  <div class="wf-spacer" aria-hidden="true"></div>
+
   <div class="wf-shelf" id="wfShelf">
     <button class="wf-item" data-project="kuguri" type="button">
       <img src="images/workflow/covers/kuguri-cover.jpg" alt="Project : Kuguri Rock Sunset">
@@ -47,6 +49,7 @@
     <button class="wf-item" data-project="halibrary" type="button">
       <img src="images/workflow/covers/ha-library-cover.jpg" alt="Project : Ha Library (Winter)">
     </button>
+    <div class="wf-shelf-hint eng" aria-hidden="true">Select a project</div>
     <div class="wf-shelf-fade" aria-hidden="true"></div>
   </div>
 
@@ -101,6 +104,7 @@
     }
   };
 
+  const wfWrap = document.getElementById('wfWrap');
   const wfShelf = document.getElementById('wfShelf');
   const wfPreview = document.getElementById('wfPreview');
   const wfPreviewImg = document.getElementById('wfPreviewImg');
@@ -112,11 +116,16 @@
   const wfPreviewMediaLink = document.getElementById('wfPreviewMediaLink');
   const wfItems = wfShelf.querySelectorAll('.wf-item');
 
-  function showProject(key, opts) {
+  const isStacked = () => window.matchMedia('(max-width: 640px)').matches;
+
+  function showProject(key) {
     const p = PROJECTS[key];
     if (!p) return;
-    opts = opts || {};
+    // first pick = the shelf still has to glide to the left, so hold the
+    // preview back until that move is nearly done
+    const slides = !wfWrap.classList.contains('has-selection') && !isStacked();
     wfItems.forEach(btn => btn.classList.toggle('active', btn.dataset.project === key));
+    wfWrap.classList.add('has-selection');
     wfShelf.classList.add('has-active');
     wfPreview.classList.remove('visible');
     const apply = () => {
@@ -138,15 +147,12 @@
       }
       wfPreview.classList.add('visible');
     };
-    if (opts.instant) apply();
-    else window.requestAnimationFrame(() => setTimeout(apply, 90));
+    window.requestAnimationFrame(() => setTimeout(apply, slides ? 450 : 90));
   }
 
   wfItems.forEach(btn => {
     btn.addEventListener('click', () => showProject(btn.dataset.project));
   });
-
-  showProject('kuguri', { instant: true });
 </script>
 <section class="contact" id="contact-block">
   <div class="contact-bg" style="background-image:url('images/09.jpg');"></div>
