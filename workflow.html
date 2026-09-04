@@ -28,7 +28,6 @@
 </nav>
 
 <section class="page-hero" style="border-bottom:none;">
-  <div class="eyebrow eng">WORKFLOW</div>
   <h1>Workflow</h1>
   <p class="note">촬영 전에 하는 계산 — 무엇을 조사하고, 어떻게 판단했는지. 프로젝트를 눌러 보세요.</p>
   <p class="wf-swipe-hint eng">&#8592; Swipe to see all projects &#8594;</p>
@@ -43,7 +42,9 @@
 
   <div class="wf-spacer" aria-hidden="true"></div>
 
-  <div class="wf-shelf" id="wfShelf">
+  <div class="wf-shelf" id="wfShelf" tabindex="0" role="listbox" aria-label="Projects">
+    <div class="wf-stack">
+    <div class="wf-drum" id="wfDrum">
     <button class="wf-item" data-project="kuguri" type="button">
       <img src="images/workflow/covers/kuguri-cover.jpg" alt="Project : Kuguri Rock Sunset">
     </button>
@@ -56,7 +57,14 @@
     <button class="wf-item" data-project="halibrary" type="button">
       <img src="images/workflow/covers/ha-library-cover.jpg" alt="Project : Ha Library (Winter)">
     </button>
-    <div class="wf-shelf-hint eng" aria-hidden="true">Select a project</div>
+    </div>
+    <span class="wf-gear" id="wfGear" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="currentColor" fill-rule="evenodd">
+        <path d="M 44.74 20.71 A 21.0 21.0 0 0 1 44.74 27.29 L 39.92 27.0 A 16.2 16.2 0 0 1 39.29 29.36 L 43.61 31.53 A 21.0 21.0 0 0 1 40.32 37.22 L 36.29 34.56 A 16.2 16.2 0 0 1 34.56 36.29 L 37.22 40.32 A 21.0 21.0 0 0 1 31.53 43.61 L 29.36 39.29 A 16.2 16.2 0 0 1 27.0 39.92 L 27.29 44.74 A 21.0 21.0 0 0 1 20.71 44.74 L 21.0 39.92 A 16.2 16.2 0 0 1 18.64 39.29 L 16.47 43.61 A 21.0 21.0 0 0 1 10.78 40.32 L 13.44 36.29 A 16.2 16.2 0 0 1 11.71 34.56 L 7.68 37.22 A 21.0 21.0 0 0 1 4.39 31.53 L 8.71 29.36 A 16.2 16.2 0 0 1 8.08 27.0 L 3.26 27.29 A 21.0 21.0 0 0 1 3.26 20.71 L 8.08 21.0 A 16.2 16.2 0 0 1 8.71 18.64 L 4.39 16.47 A 21.0 21.0 0 0 1 7.68 10.78 L 11.71 13.44 A 16.2 16.2 0 0 1 13.44 11.71 L 10.78 7.68 A 21.0 21.0 0 0 1 16.47 4.39 L 18.64 8.71 A 16.2 16.2 0 0 1 21.0 8.08 L 20.71 3.26 A 21.0 21.0 0 0 1 27.29 3.26 L 27.0 8.08 A 16.2 16.2 0 0 1 29.36 8.71 L 31.53 4.39 A 21.0 21.0 0 0 1 37.22 7.68 L 34.56 11.71 A 16.2 16.2 0 0 1 36.29 13.44 L 40.32 10.78 A 21.0 21.0 0 0 1 43.61 16.47 L 39.29 18.64 A 16.2 16.2 0 0 1 39.92 21.0 Z M 30.4 24 A 6.4 6.4 0 1 0 17.6 24 A 6.4 6.4 0 1 0 30.4 24 Z"/>
+      </svg>
+    </span>
+    </div>
+    <div class="wf-shelf-hint eng" aria-hidden="true">Scroll to turn &middot; Click to open</div>
     <div class="wf-shelf-fade" aria-hidden="true"></div>
   </div>
 
@@ -112,6 +120,8 @@
   };
 
   const wfWrap = document.getElementById('wfWrap');
+  const wfDrum = document.getElementById('wfDrum');
+  const wfGear = document.getElementById('wfGear');
   const wfShelf = document.getElementById('wfShelf');
   const wfPreview = document.getElementById('wfPreview');
   const wfPreviewImg = document.getElementById('wfPreviewImg');
@@ -125,6 +135,97 @@
 
   const isStacked = () => window.matchMedia('(max-width: 640px)').matches;
 
+  /* ---------- the wheel ---------------------------------------------------
+     Covers live on a drum, 60 degrees apart. `pos` is a float index that the
+     wheel/keys/clicks aim at and rAF eases towards, so the stack turns with
+     the scroll instead of snapping between states. The cog turns with it. */
+  const KEYS = Array.from(wfItems).map(b => b.dataset.project);
+  const N = wfItems.length;
+  const STEP = 60;       // degrees between cards
+  const GEAR_RATIO = 1.5; // cog turns 90 deg per card
+  // starts a little off-centre so the wheel visibly settles as the gate opens
+  let pos = -0.62, target = -0.62, raf = null, snapTimer = null;
+
+  function render() {
+    if (isStacked()) {
+      wfItems.forEach(el => {
+        el.style.transform = '';
+        el.style.opacity = '';
+        el.style.pointerEvents = '';
+        el.classList.remove('focused');
+      });
+      if (wfGear) wfGear.style.transform = '';
+      return;
+    }
+    const front = ((Math.round(pos) % N) + N) % N;
+    wfItems.forEach((el, i) => {
+      // wrap the offset so the wheel always has a card above and below —
+      // the seam sits at |d| = N/2, which is already faded out
+      const d = ((i - pos + N / 2) % N + N) % N - N / 2;
+      const a = Math.abs(d);
+      el.style.transform =
+        'translateZ(calc(-1 * var(--wf-drum-r))) rotateX(' + (-d * STEP) + 'deg)' +
+        ' translateZ(var(--wf-drum-r))';
+      el.style.opacity = a >= 1.7 ? 0 : Math.max(0, 1 - a * 0.5);
+      el.style.pointerEvents = a >= 1.4 ? 'none' : 'auto';
+      el.classList.toggle('focused', i === front);
+    });
+    wfGear.style.transform = 'rotate(' + (pos * STEP * GEAR_RATIO) + 'deg)';
+  }
+
+  function tick() {
+    const diff = target - pos;
+    if (Math.abs(diff) < 0.0008) { pos = target; render(); raf = null; return; }
+    pos += diff * 0.2;
+    render();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function go(t) {
+    target = Math.max(0, Math.min(N - 1, t));
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function settle() {
+    const i = Math.round(target);
+    go(i);
+    // with a project already open, turning the wheel swaps what is shown
+    if (wfWrap.classList.contains('has-selection')) showProject(KEYS[i]);
+  }
+
+  wfWrap.addEventListener('wheel', e => {
+    if (isStacked()) return;
+    if (e.target.closest('.wf-preview')) return;   // let the page scroll there
+    const dy = e.deltaY;
+    // at either end let the page take the scroll back
+    if ((target <= 0.001 && dy < 0) || (target >= N - 1 - 0.001 && dy > 0)) return;
+    e.preventDefault();
+    go(target + dy / 240);
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(settle, 130);
+  }, { passive: false });
+
+  let touchY = null;
+  wfWrap.addEventListener('touchstart', e => {
+    if (isStacked()) return;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+  wfWrap.addEventListener('touchmove', e => {
+    if (isStacked() || touchY === null) return;
+    const y = e.touches[0].clientY;
+    go(target + (touchY - y) / 90);
+    touchY = y;
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(settle, 130);
+  }, { passive: true });
+
+  wfShelf.addEventListener('keydown', e => {
+    if (isStacked()) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go(Math.round(target) + 1); settle(); }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); go(Math.round(target) - 1); settle(); }
+  });
+
+  /* ---------- selection --------------------------------------------------- */
   function showProject(key) {
     const p = PROJECTS[key];
     if (!p) return;
@@ -165,9 +266,10 @@
     wfItems.forEach(btn => btn.classList.remove('active'));
   }
 
-  wfItems.forEach(btn => {
+  wfItems.forEach((btn, i) => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
+      if (!isStacked() && Math.round(target) !== i) { go(i); }
       showProject(btn.dataset.project);
     });
   });
@@ -181,21 +283,23 @@
     if (e.key === 'Escape') clearSelection();
   });
 
-  // the shelf fills whatever the title leaves behind
+  /* ---------- stage sizing + gate ----------------------------------------- */
   const heroEl = document.querySelector('.page-hero');
   function sizeStage() {
-    const h = heroEl ? heroEl.getBoundingClientRect().height : 200;
+    const h = heroEl ? heroEl.getBoundingClientRect().height : 180;
     const stage = Math.max(420, window.innerHeight - h);
     document.documentElement.style.setProperty('--wf-stage', stage + 'px');
   }
   sizeStage();
-  window.addEventListener('resize', sizeStage);
+  render();
+  window.addEventListener('resize', () => { sizeStage(); render(); });
 
   // open the gate once the first frame is on screen
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
       wfWrap.classList.add('gate-open');
       document.documentElement.classList.add('gate-open');
+      setTimeout(() => { target = 0; if (!raf) raf = requestAnimationFrame(tick); }, 620);
     });
   });
 </script>
