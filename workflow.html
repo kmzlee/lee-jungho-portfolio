@@ -165,16 +165,27 @@
     wfGear.style.transform = 'rotate(' + (pos * STEP * GEAR_RATIO) + 'deg)';
   }
 
+  const wrapIndex = i => ((i % N) + N) % N;
+
   function tick() {
     const diff = target - pos;
-    if (Math.abs(diff) < 0.0008) { pos = target; render(); raf = null; return; }
+    if (Math.abs(diff) < 0.0008) {
+      pos = target;
+      // the wheel is endless, so fold the index back into 0..N-1 once it
+      // has come to rest — the rendering is identical either way
+      const shift = wrapIndex(Math.round(target)) - Math.round(target);
+      pos += shift; target += shift;
+      render();
+      raf = null;
+      return;
+    }
     pos += diff * 0.2;
     render();
     raf = requestAnimationFrame(tick);
   }
 
   function go(t) {
-    target = Math.max(0, Math.min(N - 1, t));
+    target = t;                       // no ends: the wheel just keeps going
     if (!raf) raf = requestAnimationFrame(tick);
   }
 
@@ -182,16 +193,14 @@
     const i = Math.round(target);
     go(i);
     // with a project already open, turning the wheel swaps what is shown
-    if (wfWrap.classList.contains('has-selection')) showProject(KEYS[i]);
+    if (wfWrap.classList.contains('has-selection')) showProject(KEYS[wrapIndex(i)]);
   }
 
-  wfWrap.addEventListener('wheel', e => {
-    if (e.target.closest('.wf-preview')) return;   // let the page scroll there
-    const dy = e.deltaY;
-    // at either end let the page take the scroll back
-    if ((target <= 0.001 && dy < 0) || (target >= N - 1 - 0.001 && dy > 0)) return;
+  // the listener sits on the shelf, not the whole stage: the wheel loops
+  // forever, so the empty space beside it is what scrolls the page
+  wfShelf.addEventListener('wheel', e => {
     e.preventDefault();
-    go(target + dy / 240);
+    go(target + e.deltaY / 240);
     clearTimeout(snapTimer);
     snapTimer = setTimeout(settle, 130);
   }, { passive: false });
@@ -207,18 +216,11 @@
     const dy = tY - y;
     if (tLock === null) {
       if (Math.abs(dy) < 6 && Math.abs(x - tX) < 6) return;
-      // hand the gesture to the page when it is sideways, or when the wheel
-      // is already at the end it is being pushed towards
-      const atEnd = (target <= 0.001 && dy < 0) || (target >= N - 1 - 0.001 && dy > 0);
-      tLock = (Math.abs(dy) > Math.abs(x - tX) && !atEnd) ? 'drum' : 'page';
+      // sideways gestures belong to the page; vertical ones turn the wheel
+      tLock = Math.abs(dy) > Math.abs(x - tX) ? 'drum' : 'page';
     }
-    // touch-action keeps the browser out of vertical drags on the card, so a
-    // gesture the wheel does not want is passed on to the page by hand
-    if (tLock !== 'drum') {
-      window.scrollBy(0, dy);
-      tX = x; tY = y;
-      return;
-    }
+    // sideways gestures are left to the browser (touch-action: pan-x)
+    if (tLock !== 'drum') return;
     e.preventDefault();
     go(target + dy / 150);
     tX = x; tY = y;
@@ -230,6 +232,7 @@
   wfShelf.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go(Math.round(target) + 1); settle(); }
     if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); go(Math.round(target) - 1); settle(); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showProject(KEYS[wrapIndex(Math.round(target))]); }
   });
 
   /* ---------- selection --------------------------------------------------- */
@@ -282,7 +285,9 @@
   wfItems.forEach((btn, i) => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      if (Math.round(target) !== i) go(i);
+      const cur = Math.round(target);
+      const step = wrapIndex(i - cur);
+      if (step) go(cur + (step > N / 2 ? step - N : step));
       showProject(btn.dataset.project);
     });
   });
