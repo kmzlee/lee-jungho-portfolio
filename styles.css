@@ -681,3 +681,30 @@ figure.frame:hover .info-icon{
   /* the page behind the sheet stays put */
   html.wf-sheet-open, html.wf-sheet-open body{ overflow:hidden; }
 }
+
+
+/* ---- shared entry motion -------------------------------------------------
+   One quiet reveal used by every page, so the site reads as one piece.
+   The workflow gate is the single deliberate exception (see .js-gate above);
+   its hero is driven by the gate, so it carries no [data-rv].
+   Hidden state is applied by CSS the moment .js-enter lands (inline, before
+   paint) and lifted by script.js; .rv-all is a 2.5s failsafe in case the
+   script never runs. */
+.js-enter [data-rv]{
+  opacity:0;
+  transform:translateY(16px);
+  transition:opacity 0.6s cubic-bezier(0.22,0.61,0.36,1),
+             transform 0.6s cubic-bezier(0.22,0.61,0.36,1);
+  will-change:opacity, transform;
+}
+.js-enter [data-rv].rv-in,
+.js-enter.rv-all [data-rv]{
+  opacity:1;
+  transform:none;
+}
+/* multi-column stream: drop the transform once shown so the columns are not
+   left with stray containing blocks */
+.js-enter [data-rv].rv-done{ will-change:auto; }
+@media (prefers-reduced-motion: reduce){
+  .js-enter [data-rv]{ opacity:1; transform:none; transition:none; }
+}

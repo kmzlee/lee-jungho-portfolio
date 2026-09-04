@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="home">
+<script>document.documentElement.classList.add('js-enter');setTimeout(function(){document.documentElement.classList.add('rv-all');},2500);</script>
 
 <header class="topbar">
   <div class="wordmark"><a href="index.html">LEE JUNGHO</a> <span class="sep">|</span> <a href="contact.html" class="contact-link">CONTACT</a></div>
@@ -28,14 +29,14 @@
 
 <section class="hero" id="home">
   <img src="images/06.jpg" alt="아키요시다이 카르스트, 페르세우스 유성우와 은하수">
-  <div class="hero-text">
+  <div class="hero-text" data-rv>
     <h1 class="eng">PORTFOLIO<br>DRAFT</h1>
     <p>19 IMAGES · 카테고리 2개 정리 중 · 논의용 초안 · 톤 보정 없음</p>
   </div>
-  <div class="scroll-hint eng">SCROLL</div>
+  <div class="scroll-hint eng" data-rv data-rv-delay="220">SCROLL</div>
 </section>
 
-<nav class="home-links">
+<nav class="home-links" data-rv>
   <a class="home-link-card" href="about.html">
     <span class="hl-index eng">01</span>
     <span class="hl-title eng">About</span>
@@ -51,7 +52,7 @@
 </nav>
 <section class="contact" id="contact-block">
   <div class="contact-bg" style="background-image:url('images/09.jpg');"></div>
-  <div class="contact-content">
+  <div class="contact-content" data-rv>
     <div class="eyebrow eng">GET IN TOUCH</div>
     <h2>Contact</h2>
     <div class="contact-grid">
