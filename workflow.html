@@ -6,7 +6,7 @@
 <title>Lee Jungho — Workflow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="workflow">
@@ -72,17 +72,16 @@
   <div class="wf-preview" id="wfPreview">
     <a class="wf-preview-media" id="wfPreviewMediaLink" target="_blank" rel="noopener" aria-label="자세히 보기">
       <img id="wfPreviewImg" src="" alt="">
-      <span class="wf-preview-media-hint eng" id="wfPreviewMediaHint">View Project &#8599;</span>
-      <span class="wf-preview-tag eng" id="wfPreviewTag"></span>
+      <span class="wf-preview-media-hint eng">View Project &#8599;</span>
     </a>
     <div class="wf-preview-body">
       <div class="wf-preview-eyebrow eng" id="wfPreviewEyebrow"></div>
       <h2 id="wfPreviewTitle"></h2>
       <p class="wf-preview-loc" id="wfPreviewLoc"></p>
-      <dl class="wf-preview-data eng" id="wfPreviewData"></dl>
       <p class="wf-preview-summary" id="wfPreviewSummary"></p>
       <a class="wf-preview-link eng" id="wfPreviewLink" href="" target="_blank" rel="noopener">자세히 보기 ↗</a>
     </div>
+    <div class="wf-lib" id="wfLib" hidden></div>
     <button class="wf-preview-close" id="wfPreviewClose" type="button" aria-label="close">&times;</button>
   </div>
 </section>
@@ -114,28 +113,44 @@
       link: "workflow/kita-nagato-sunset.html"
     },
     halibrary: {
-      eyebrow: "H-ALPHA LIBRARY · 01",
-      title: "Heart & Soul Nebula",
-      loc: "IC 1805 · IC 1848 — Cassiopeia · 2026.09.22 22:49",
-      img: "images/workflow/ha-library/heart-soul-stack.jpg",
-      // the frame is shown whole (3:2, no crop) and opens at full size
-      aspect: "3 / 2",
-      full: "images/workflow/ha-library/heart-soul-stack.jpg",
-      tag: "Before DBE",
-      summary: "DBE 전 스택 원본입니다. 커버는 같은 데이터를 DBE 처리 후 흑백으로 옮긴 결과입니다.",
-      data: [
-        ["Camera", "Sony α7 IV"],
-        ["Lens", "Samyang 50mm F1.4 FE II"],
-        ["Filter", "Astronomik Hα 12nm MaxFR"],
-        ["Mount", "Star Adventurer GTi"],
-        ["Aperture", "f/2.0"],
-        ["Sub", "180s"],
-        ["ISO", "640"],
-        ["Integration", "1h"],
-        ["Sky", "Bortle 3"],
-        ["Moon", "82% · Alt 30°→23°"]
-      ],
-      link: null
+      eyebrow: "NIGHT SKY LIBRARY · WINTER 2026–2027",
+      title: "Project: Ha Library (Winter)",
+      loc: "",
+      img: "images/workflow/covers/ha-library-cover.jpg",
+      summary: "메인 파노라마에 나중에 입힐 Hα 데이터를 타깃별로 따로 쌓아두는 라이브러리입니다. 이미지를 누르면 원본 스택과 촬영 데이터가 열립니다.",
+      link: null,
+      // opens as a list of targets instead of a single preview image
+      library: [
+        {
+          num: "01",
+          name: "Heart & Soul Nebula",
+          ids: "IC 1805 · IC 1848 — Cassiopeia",
+          mono: "images/workflow/ha-library/heart-soul-ha.jpg",
+          raw: "images/workflow/ha-library/heart-soul-stack.jpg",
+          // where the target sits in the raw frame, in % of width / height
+          reticle: { x: 53, y: 43, w: 8, h: 20 },
+          hud: [
+            ["DATE", "2026.09.22"],
+            ["START", "22:49 JST"],
+            ["TGT ALT", "43° → 50°"],
+            null,
+            ["CAMERA", "Sony α7 IV"],
+            ["LENS", "Samyang 50mm F1.4"],
+            ["FILTER", "Astronomik Hα 12nm"],
+            ["MOUNT", "Star Adv. GTi"],
+            null,
+            ["SUB", "180s"],
+            ["APERTURE", "f/2.0"],
+            ["ISO", "640"],
+            ["INT. TIME", "1h"],
+            null,
+            ["SKY", "Bortle 3"],
+            ["MOON", "82% illum."],
+            ["MOON ALT", "30° → 23°"],
+            ["MOON SEP", "107°"]
+          ]
+        }
+      ]
     }
   };
 
@@ -152,9 +167,6 @@
   const wfPreviewLink = document.getElementById('wfPreviewLink');
   const wfPreviewMediaLink = document.getElementById('wfPreviewMediaLink');
   const wfPreviewClose = document.getElementById('wfPreviewClose');
-  const wfPreviewMediaHint = document.getElementById('wfPreviewMediaHint');
-  const wfPreviewTag = document.getElementById('wfPreviewTag');
-  const wfPreviewData = document.getElementById('wfPreviewData');
   const wfItems = wfShelf.querySelectorAll('.wf-item');
 
   const isStacked = () => window.matchMedia('(max-width: 900px)').matches;
@@ -257,6 +269,136 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showProject(KEYS[wrapIndex(Math.round(target))]); }
   });
 
+  /* ---------- library (Ha Library) ----------------------------------------
+     A project can open as a list of targets. Each target shows its
+     processed Hα frame; clicking it turns the card one full turn on Y and
+     lands on the raw stack, then the acquisition data types itself in over
+     the right side of the frame. Clicking again turns it back. */
+  const wfLib = document.getElementById('wfLib');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const FLIP_MS = 1100;
+
+  function renderLibrary(list) {
+    wfPreview.classList.toggle('is-library', !!list);
+    wfLib.hidden = !list;
+    wfLib.innerHTML = '';
+    if (!list) return;
+    list.forEach(t => wfLib.appendChild(buildEntry(t)));
+  }
+
+  function buildEntry(t) {
+    const el = document.createElement('article');
+    el.className = 'lib-entry';
+    const r = t.reticle;
+    el.innerHTML =
+      '<div class="lib-frame">' +
+        '<button class="lib-stage" type="button" aria-pressed="false">' +
+          '<span class="lib-card">' +
+            '<span class="lib-face front"><img alt=""></span>' +
+            '<span class="lib-face back"><img alt=""></span>' +
+          '</span>' +
+          '<span class="lib-reticle" style="left:' + r.x + '%;top:' + r.y + '%;width:' + r.w + '%;height:' + r.h + '%">' +
+            '<i></i><i></i><i></i><i></i><b class="lib-reticle-lead"></b>' +
+          '</span>' +
+          '<span class="lib-state eng"></span>' +
+        '</button>' +
+        '<div class="lib-hud" aria-live="polite">' +
+          '<div class="lib-hud-head"><span>HA-LIB/' + t.num + '</span><span>ACQ LOG</span></div>' +
+          '<dl class="lib-hud-rows"></dl>' +
+        '</div>' +
+      '</div>' +
+      '<div class="lib-cap">' +
+        '<span class="lib-num eng">' + t.num + '</span>' +
+        '<span class="lib-name"></span>' +
+        '<span class="lib-ids eng"></span>' +
+        '<a class="lib-full eng" target="_blank" rel="noopener">Full size &#8599;</a>' +
+      '</div>';
+
+    const stage = el.querySelector('.lib-stage');
+    const card = el.querySelector('.lib-card');
+    const front = el.querySelector('.front img');
+    const back = el.querySelector('.back img');
+    const state = el.querySelector('.lib-state');
+    const rows = el.querySelector('.lib-hud-rows');
+    el.querySelector('.lib-name').textContent = t.name;
+    el.querySelector('.lib-ids').textContent = t.ids;
+    el.querySelector('.lib-full').href = t.raw;
+
+    front.src = t.mono; front.alt = t.name + ' — Hα, DBE';
+    back.alt = t.name + ' — raw stack';
+    // warm the raw frame so the turn never lands on an empty face
+    new Image().src = t.raw;
+
+    t.hud.forEach(row => {
+      if (!row) { rows.appendChild(Object.assign(document.createElement('div'), { className: 'gap' })); return; }
+      const d = document.createElement('div');
+      d.innerHTML = '<dt></dt><dd></dd>';
+      d.firstChild.textContent = row[0];
+      d.lastChild.dataset.text = row[1];
+      rows.appendChild(d);
+    });
+
+    let raw = false, turn = 0, busy = false, typeTimers = [];
+    const setState = () => {
+      state.textContent = raw ? 'Raw stack · before DBE' : 'Hα · DBE';
+      stage.setAttribute('aria-pressed', raw ? 'true' : 'false');
+      stage.setAttribute('aria-label', raw ? t.name + ' — 처리 결과로 돌아가기' : t.name + ' — 원본 스택과 촬영 데이터 보기');
+    };
+    setState();
+
+    const clearTyping = () => { typeTimers.forEach(clearTimeout); typeTimers = []; };
+    function typeHud() {
+      clearTyping();
+      const cells = rows.querySelectorAll('dd');
+      if (reduceMotion.matches) { cells.forEach(c => { c.textContent = c.dataset.text; }); return; }
+      const GLYPHS = '0123456789ABCDEF/<>:·';
+      cells.forEach((c, i) => {
+        c.textContent = '';
+        const full = c.dataset.text;
+        let n = 0;
+        const step = () => {
+          n++;
+          const tail = n < full.length ? GLYPHS[(Math.random() * GLYPHS.length) | 0] : '';
+          c.textContent = full.slice(0, n) + tail;
+          if (n < full.length) typeTimers.push(setTimeout(step, 18));
+        };
+        typeTimers.push(setTimeout(step, 260 + i * 55));
+      });
+    }
+
+    stage.addEventListener('click', e => {
+      e.stopPropagation();
+      if (busy) return;
+      const goRaw = !raw;
+      const next = goRaw ? t.raw : t.mono;
+      el.classList.remove('hud-on');
+      clearTyping();
+      if (reduceMotion.matches) {
+        front.src = next; raw = goRaw; setState();
+        el.classList.toggle('is-raw', raw);
+        if (raw) { el.classList.add('hud-on'); typeHud(); }
+        return;
+      }
+      busy = true;
+      back.src = next;                    // seen from 90° to 270°
+      el.classList.add('is-turning');
+      turn += 360;
+      card.style.transform = 'rotateY(' + turn + 'deg)';
+      // the symmetric easing puts 180° at the halfway mark — the front face
+      // is hidden then, so it can take the new image unseen
+      setTimeout(() => {
+        front.src = next; raw = goRaw; setState();
+        el.classList.toggle('is-raw', raw);
+      }, FLIP_MS / 2);
+      setTimeout(() => {
+        busy = false;
+        el.classList.remove('is-turning');
+        if (raw) { el.classList.add('hud-on'); typeHud(); }
+      }, FLIP_MS);
+    });
+    return el;
+  }
+
   /* ---------- selection --------------------------------------------------- */
   function showProject(key) {
     const p = PROJECTS[key];
@@ -277,27 +419,11 @@
       wfPreviewLoc.textContent = p.loc;
       wfPreviewLoc.style.display = p.loc ? '' : 'none';
       wfPreviewSummary.textContent = p.summary;
-      // a single frame is shown whole at its own ratio instead of the 16:10 crop
-      wfPreviewMediaLink.style.aspectRatio = p.aspect || '';
-      wfPreviewMediaLink.classList.toggle('is-frame', !!p.aspect);
-      wfPreviewTag.textContent = p.tag || '';
-      wfPreviewTag.style.display = p.tag ? '' : 'none';
-      wfPreviewData.innerHTML = '';
-      (p.data || []).forEach(([k, v]) => {
-        const row = document.createElement('div');
-        const dt = document.createElement('dt'); dt.textContent = k;
-        const dd = document.createElement('dd'); dd.textContent = v;
-        row.append(dt, dd);
-        wfPreviewData.appendChild(row);
-      });
-      wfPreviewData.style.display = p.data ? '' : 'none';
+      renderLibrary(p.library);
       wfPreviewLink.href = p.link;
       wfPreviewLink.style.display = p.link ? '' : 'none';
-      const mediaHref = p.link || p.full;
-      wfPreviewMediaHint.innerHTML = p.link ? 'View Project &#8599;' : 'View Full Size &#8599;';
-      wfPreviewMediaLink.setAttribute('aria-label', p.link ? '자세히 보기' : '원본 크기로 보기');
-      if (mediaHref) {
-        wfPreviewMediaLink.setAttribute('href', mediaHref);
+      if (p.link) {
+        wfPreviewMediaLink.setAttribute('href', p.link);
         wfPreviewMediaLink.classList.add('is-link');
       } else {
         wfPreviewMediaLink.removeAttribute('href');
@@ -338,7 +464,7 @@
 
   // clicking the stage outside the shelf / the open project sends it back
   wfWrap.addEventListener('click', e => {
-    if (e.target.closest('.wf-shelf, .wf-preview-media, .wf-preview-body')) return;
+    if (e.target.closest('.wf-shelf, .wf-preview-media, .wf-preview-body, .wf-lib')) return;
     clearSelection();
   });
   document.addEventListener('keydown', e => {
