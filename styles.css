@@ -524,8 +524,8 @@ figure.frame:hover .info-icon{
 .wf-preview-close:hover{ opacity:1; }
 
 /* ---- library projects (Ha Library): a list of targets ------------------
-   Each entry: processed Hα frame -> click -> one full turn on Y -> raw
-   stack, then an acquisition log types itself in over the right side. */
+   Each entry: processed Hα frame -> click -> quick square-by-square
+   dissolve into the raw stack, then an acquisition log types itself in over the right side. */
 .wf-preview.is-library .wf-preview-media{ display:none; }
 .wf-preview.is-library .wf-preview-summary{
   font-size:13px; line-height:1.75; color:var(--fg-dim); margin-bottom:0;
@@ -545,27 +545,24 @@ figure.frame:hover .info-icon{
 .lib-frame{ position:relative; }
 .lib-stage{
   display:block; position:relative; width:100%; aspect-ratio:3 / 2;
-  padding:0; margin:0; border:0; background:transparent;
-  cursor:pointer; perspective:1800px;
+  padding:0; margin:0; border:0; background:#000; overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.12);
   color:inherit; font:inherit; text-align:left;
 }
 .lib-stage:focus-visible{ outline:1px solid rgba(255,255,255,0.6); outline-offset:4px; }
-.lib-card{
-  position:absolute; inset:0;
-  transform-style:preserve-3d;
-  transition:transform 1.1s cubic-bezier(0.65,0,0.35,1);
-}
-.lib-face{
-  position:absolute; inset:0; overflow:hidden; background:#000;
-  -webkit-backface-visibility:hidden; backface-visibility:hidden;
-  box-shadow:0 0 0 1px rgba(255,255,255,0.12);
-}
-.lib-face.back{ transform:rotateY(180deg); }
-.lib-face img{
-  width:100%; height:100%; object-fit:cover; display:block;
+.lib-img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block;
   transition:filter 0.35s ease;
 }
-.lib-stage:hover .lib-face img{ filter:brightness(1.12); }
+.lib-stage:hover .lib-img{ filter:brightness(1.12); }
+/* the square-by-square dissolve is painted here, then handed to the <img> */
+.lib-px{
+  position:absolute; inset:0; width:100%; height:100%;
+  pointer-events:none; visibility:hidden;
+}
+.lib-px.on{ visibility:visible; }
 .lib-state{
   position:absolute; left:12px; bottom:10px;
   font-size:9px; letter-spacing:0.2em; text-transform:uppercase;
@@ -678,7 +675,7 @@ figure.frame:hover .info-icon{
 }
 .lib-full:hover{ color:var(--fg); }
 @media (prefers-reduced-motion: reduce){
-  .lib-card, .lib-hud, .lib-reticle, .lib-reticle-lead{ transition:none; }
+  .lib-hud, .lib-reticle, .lib-reticle-lead{ transition:none; }
   .hud-on .lib-hud::after{ animation:none; }
 }
 
