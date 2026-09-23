@@ -72,12 +72,14 @@
   <div class="wf-preview" id="wfPreview">
     <a class="wf-preview-media" id="wfPreviewMediaLink" target="_blank" rel="noopener" aria-label="자세히 보기">
       <img id="wfPreviewImg" src="" alt="">
-      <span class="wf-preview-media-hint eng">View Project &#8599;</span>
+      <span class="wf-preview-media-hint eng" id="wfPreviewMediaHint">View Project &#8599;</span>
+      <span class="wf-preview-tag eng" id="wfPreviewTag"></span>
     </a>
     <div class="wf-preview-body">
       <div class="wf-preview-eyebrow eng" id="wfPreviewEyebrow"></div>
       <h2 id="wfPreviewTitle"></h2>
       <p class="wf-preview-loc" id="wfPreviewLoc"></p>
+      <dl class="wf-preview-data eng" id="wfPreviewData"></dl>
       <p class="wf-preview-summary" id="wfPreviewSummary"></p>
       <a class="wf-preview-link eng" id="wfPreviewLink" href="" target="_blank" rel="noopener">자세히 보기 ↗</a>
     </div>
@@ -112,11 +114,23 @@
       link: "workflow/kita-nagato-sunset.html"
     },
     halibrary: {
-      eyebrow: "UPCOMING",
-      title: "Project: Ha Library (Winter)",
-      loc: "",
-      img: "images/workflow/covers/ha-library-cover.jpg",
-      summary: "상세 내용 준비 중입니다.",
+      eyebrow: "H-ALPHA LIBRARY · 01",
+      title: "Heart & Soul Nebula",
+      loc: "IC 1805 · IC 1848 — Cassiopeia · 2026.09.22",
+      img: "images/workflow/ha-library/heart-soul-stack.jpg",
+      // the frame is shown whole (3:2, no crop) and opens at full size
+      aspect: "3 / 2",
+      full: "images/workflow/ha-library/heart-soul-stack.jpg",
+      tag: "Before DBE",
+      summary: "DBE 전 스택 원본입니다. 커버는 같은 데이터를 DBE 처리 후 흑백으로 옮긴 결과입니다.",
+      data: [
+        ["Camera", "Sony α7 IV"],
+        ["Lens", "Samyang 50mm F1.4 FE II"],
+        ["Aperture", "f/2.0"],
+        ["Sub", "180s"],
+        ["ISO", "640"],
+        ["Integration", "1h"]
+      ],
       link: null
     }
   };
@@ -134,6 +148,9 @@
   const wfPreviewLink = document.getElementById('wfPreviewLink');
   const wfPreviewMediaLink = document.getElementById('wfPreviewMediaLink');
   const wfPreviewClose = document.getElementById('wfPreviewClose');
+  const wfPreviewMediaHint = document.getElementById('wfPreviewMediaHint');
+  const wfPreviewTag = document.getElementById('wfPreviewTag');
+  const wfPreviewData = document.getElementById('wfPreviewData');
   const wfItems = wfShelf.querySelectorAll('.wf-item');
 
   const isStacked = () => window.matchMedia('(max-width: 900px)').matches;
@@ -256,10 +273,27 @@
       wfPreviewLoc.textContent = p.loc;
       wfPreviewLoc.style.display = p.loc ? '' : 'none';
       wfPreviewSummary.textContent = p.summary;
+      // a single frame is shown whole at its own ratio instead of the 16:10 crop
+      wfPreviewMediaLink.style.aspectRatio = p.aspect || '';
+      wfPreviewMediaLink.classList.toggle('is-frame', !!p.aspect);
+      wfPreviewTag.textContent = p.tag || '';
+      wfPreviewTag.style.display = p.tag ? '' : 'none';
+      wfPreviewData.innerHTML = '';
+      (p.data || []).forEach(([k, v]) => {
+        const row = document.createElement('div');
+        const dt = document.createElement('dt'); dt.textContent = k;
+        const dd = document.createElement('dd'); dd.textContent = v;
+        row.append(dt, dd);
+        wfPreviewData.appendChild(row);
+      });
+      wfPreviewData.style.display = p.data ? '' : 'none';
       wfPreviewLink.href = p.link;
       wfPreviewLink.style.display = p.link ? '' : 'none';
-      if (p.link) {
-        wfPreviewMediaLink.setAttribute('href', p.link);
+      const mediaHref = p.link || p.full;
+      wfPreviewMediaHint.innerHTML = p.link ? 'View Project &#8599;' : 'View Full Size &#8599;';
+      wfPreviewMediaLink.setAttribute('aria-label', p.link ? '자세히 보기' : '원본 크기로 보기');
+      if (mediaHref) {
+        wfPreviewMediaLink.setAttribute('href', mediaHref);
         wfPreviewMediaLink.classList.add('is-link');
       } else {
         wfPreviewMediaLink.removeAttribute('href');

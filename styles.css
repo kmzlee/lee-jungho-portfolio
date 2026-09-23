@@ -501,6 +501,32 @@ figure.frame:hover .info-icon{
 .wf-preview-summary{
   font-size:14px; line-height:1.85; color:var(--fg); margin-bottom:22px;
 }
+/* a single frame (e.g. Ha Library): whole image at its own ratio, sized so
+   the frame + data still fit the stage without scrolling */
+.wf-preview-media.is-frame{
+  width:min(100%, calc((var(--wf-stage, 720px) - 310px) * 3 / 2));
+  min-width:min(100%, 360px);
+}
+.wf-preview-media.is-frame img{ object-fit:contain; }
+.wf-preview-tag{
+  position:absolute; left:12px; top:10px;
+  font-size:9px; letter-spacing:0.2em; text-transform:uppercase;
+  color:rgba(255,255,255,0.72);
+  pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+.wf-preview-media.is-link:hover .wf-preview-tag{ opacity:0; }
+.wf-preview-data{
+  display:grid; grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px 18px;
+  margin:4px 0 18px; padding:14px 0;
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+}
+.wf-preview-data dt{
+  font-size:9px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--fg-dim); margin-bottom:3px;
+}
+.wf-preview-data dd{ margin:0; font-size:13px; font-weight:300; color:var(--fg); }
 .wf-preview-link{
   display:inline-block;
   color:var(--fg); text-decoration:none;
@@ -620,6 +646,7 @@ figure.frame:hover .info-icon{
   .contact-card{padding:9px 11px;}
   .wf-swipe-hint{ display:none; }
   .wf-preview-media, .wf-preview-body{ max-width:520px; }
+  .wf-preview-data{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .wordmark{font-size:11px;}
   .lightbox{padding:70px 18px 40px;}
   .nav-overlay a{font-size:clamp(24px, 8vw, 40px);}
@@ -677,6 +704,7 @@ figure.frame:hover .info-icon{
   .wf-preview-close{ display:flex; }
   .wf-preview-media{ aspect-ratio:16/9; margin-bottom:22px; }
   .wf-preview-media, .wf-preview-body{ max-width:560px; }
+  .wf-preview-media.is-frame{ width:100%; min-width:0; }
   .wf-shelf.has-active{ border-bottom:none; }
   /* the page behind the sheet stays put */
   html.wf-sheet-open, html.wf-sheet-open body{ overflow:hidden; }
