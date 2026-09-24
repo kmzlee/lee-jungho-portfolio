@@ -220,11 +220,6 @@
 <g class="m-t" data-t="seagull"><path class="m-neb" d="M298.9,142.9 L298.5,141.9 L298.0,141.0 L297.3,140.1 L296.6,139.3 L295.7,138.7 L294.8,138.1 L293.8,137.7 L292.8,137.4 L291.7,137.2 L290.6,137.2 L289.5,137.3 L288.5,137.5 L287.4,137.9 L286.5,138.5 L285.6,139.1 L284.8,139.9 L284.1,140.7 L283.5,141.7 L283.1,142.7 L282.8,143.7 L282.6,144.8 L282.6,145.9 L282.7,147.0 L283.0,148.1 L283.4,149.1 L283.9,150.1 L284.6,151.0 L285.4,151.8 L286.2,152.5 L287.2,153.0 L288.2,153.5 L289.3,153.7 L290.4,153.9 L291.5,153.9 L292.6,153.8 L293.6,153.5 L294.6,153.1 L295.6,152.5 L296.5,151.9 L297.2,151.1 L297.9,150.2 L298.5,149.3 L298.9,148.3 L299.2,147.2 L299.3,146.2 L299.3,145.1 L299.2,144.0 Z"/><circle class="m-hit" cx="291.0" cy="145.5" r="9"/><text class="m-tn" x="291" y="128" text-anchor="middle">13</text></g>
 <g class="m-t" data-t="thor"><path class="m-neb" d="M271.9,130.7 L271.8,130.5 L271.7,130.4 L271.6,130.3 L271.5,130.2 L271.4,130.1 L271.3,130.0 L271.1,129.9 L271.0,129.9 L270.8,129.8 L270.7,129.8 L270.5,129.8 L270.4,129.9 L270.2,129.9 L270.1,130.0 L269.9,130.1 L269.8,130.2 L269.7,130.3 L269.6,130.5 L269.6,130.6 L269.5,130.8 L269.5,130.9 L269.5,131.1 L269.5,131.2 L269.5,131.4 L269.6,131.5 L269.7,131.7 L269.8,131.8 L269.9,131.9 L270.0,132.0 L270.1,132.1 L270.3,132.2 L270.4,132.2 L270.6,132.2 L270.7,132.3 L270.9,132.2 L271.1,132.2 L271.2,132.1 L271.3,132.1 L271.5,132.0 L271.6,131.9 L271.7,131.7 L271.8,131.6 L271.8,131.5 L271.9,131.3 L271.9,131.2 L271.9,131.0 L271.9,130.8 Z"/><circle class="m-hit" cx="270.7" cy="131.0" r="9"/><text class="m-tn" x="264" y="127" text-anchor="end">14</text></g>
 <g class="m-t" data-t="eridanus"><path class="m-ring" d="M520.7,329.5 L518.5,333.5 L516.2,337.4 L513.9,341.4 L511.5,345.3 L509.2,349.3 L506.8,353.3 L504.4,357.4 L501.9,361.4 L498.9,364.8 L495.9,368.1 L492.8,371.5 L489.7,374.8 L486.6,378.2 L483.4,381.6 L480.2,385.0 L477.0,388.3 L473.2,391.0 L469.3,393.6 L465.5,396.2 L461.6,398.7 L457.7,401.3 L453.7,403.9 L449.7,406.4 L445.7,408.9"/><text class="m-tn" x="500" y="379" text-anchor="start">15</text></g>
-<text class="m-fl" data-f="A" x="835" y="-40" text-anchor="middle">FIELD A · 50mm</text>
-<text class="m-fl" data-f="B" x="561" y="52" text-anchor="middle">FIELD B · 50mm</text>
-<text class="m-fl" data-f="C" x="412" y="95" text-anchor="middle">FIELD C · 50mm</text>
-<text class="m-fl" data-f="D" x="229" y="13" text-anchor="middle">FIELD D · 50mm</text>
-<text class="m-fl" data-f="E" x="575" y="246" text-anchor="middle">FIELD E · 50mm</text>
 </svg>
 </template>
 
@@ -495,7 +490,7 @@
     const tpl = document.getElementById('haMapTpl');
     box.innerHTML =
       '<div class="lib-sec eng">Target map · winter Milky Way arch</div>' +
-      '<div class="lib-map"><div class="lib-map-scroll"></div></div>' +
+      '<div class="lib-map"><div class="lib-map-scroll"></div><div class="lib-map-tag eng" aria-hidden="true"></div></div>' +
       '<div class="lib-map-key eng">' +
         '<span><i class="k-done"></i>Captured</span>' +
         '<span><i class="k-plan"></i>Planned</span>' +
@@ -585,13 +580,22 @@
 
     const fieldOf = {};
     all.forEach(t => { fieldOf[t.key] = t.f; });
-    const FRAME = f => '.m-fr[data-f="' + f + '"], .m-fl[data-f="' + f + '"], .lib-field[data-f="' + f + '"]';
+    const FRAME = f => '.m-fr[data-f="' + f + '"], .lib-field[data-f="' + f + '"]';
+    // the field name sits in a fixed corner of the map — a label pinned to
+    // the frame would fall off the top whenever the frame runs past the edge
+    const mapTag = box.querySelector('.lib-map-tag');
+    const tag = (f, on) => {
+      mapTag.textContent = on && f ? 'Field ' + f + ' · 50mm · 40° × 27°' : '';
+      mapTag.classList.toggle('on', !!(on && f));
+    };
     const light = (t, f, on) => {
       box.querySelectorAll('[data-t="' + t + '"]').forEach(el => el.classList.toggle('hot', on));
       if (f) box.querySelectorAll(FRAME(f)).forEach(el => el.classList.toggle('hot', on));
+      tag(f, on);
     };
     // a field chip lights its frame and every target inside it
     const lightField = (f, on) => {
+      tag(f, on);
       box.querySelectorAll(FRAME(f)).forEach(el => el.classList.toggle('hot', on));
       Object.keys(fieldOf).filter(t => fieldOf[t] === f).forEach(t =>
         box.querySelectorAll('[data-t="' + t + '"]').forEach(el => el.classList.toggle('hot', on)));

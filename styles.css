@@ -566,6 +566,14 @@ figure.frame:hover .info-icon{
 .lib-map{ position:relative; margin:0 -20px; }
 @media (min-width:901px){ .lib-map{ margin:0 -36px; } }
 .lib-map-scroll{ overflow-x:auto; scrollbar-width:none; }
+.lib-map-tag{
+  position:absolute; left:20px; top:6px;
+  font-size:10px; letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--fg); opacity:0; pointer-events:none;
+  transition:opacity 0.2s ease;
+}
+.lib-map-tag.on{ opacity:0.85; }
+@media (min-width:901px){ .lib-map-tag{ left:36px; } }
 .lib-map-scroll::-webkit-scrollbar{ display:none; }
 .lib-map-svg{ display:block; width:100%; min-width:600px; height:auto; }
 .lib-map-svg text{ font-family:'IBM Plex Mono', ui-monospace, Menlo, monospace; }
