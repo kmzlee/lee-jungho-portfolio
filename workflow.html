@@ -264,35 +264,46 @@
       // the winter arch: which constellations it crosses and which Hα
       // targets sit in each, grouped into the 50mm fields that cover them
       sky: {
+        // [field, constellations, captured, shooting order]
+        // order = biggest mass first: Barnard's Loop, then the Eridanus
+        // filament, then the 2.5–5° clouds; the small "red beads" ride along
         fields: [
           ["A", "Cassiopeia", true],
-          ["B", "Perseus · Auriga · Taurus · Gemini"],
-          ["C", "Orion · Monoceros"],
-          ["D", "Monoceros · Canis Major"],
-          ["E", "Eridanus · Taurus"]
+          ["C", "Orion · Monoceros", false, 1],
+          ["E", "Eridanus · Taurus", false, 2],
+          ["B", "Perseus · Auriga · Taurus · Gemini", false, 3],
+          ["D", "Monoceros · Canis Major", false, 4]
         ],
+        // size tiers by apparent extent (major axis) at 50mm on the α7 IV
+        tiers: [
+          ["P1", 10, "10° 이상 — 화면 폭의 25% 이상"],
+          ["P2", 2.5, "2.5–10° — 한 덩어리로 또렷하게"],
+          ["P3", 1, "1–2.5° — 성운 모양은 보이는 크기"],
+          ["P4", 0, "1° 미만 — 은하수 속 빨간 구슬, 마지막"]
+        ],
+        // [key, no., catalogue, name, field, size in degrees, size note, captured]
         roster: [
-          ["CASSIOPEIA", [["heart-soul", "01", "IC 1805 · 1848", "Heart & Soul", "A", "2026.09.22"]]],
-          ["PERSEUS", [["california", "02", "NGC 1499", "California", "B"]]],
-          ["AURIGA", [["auriga", "03", "IC 405 · 410 · 417", "Flaming Star · Tadpoles · Spider", "B"]]],
-          ["TAURUS", [["spaghetti", "04", "Sh2-240", "Spaghetti (Simeis 147)", "B"]]],
-          ["ERIDANUS", [["eridanus", "15", "Sh2-245", "Eridanus Loop (Fishhook)", "E"]]],
-          ["GEMINI", [["jellyfish", "05", "IC 443", "Jellyfish", "B"]]],
+          ["CASSIOPEIA", [["heart-soul", "01", "IC 1805 · 1848", "Heart & Soul", "A", 5, "", "2026.09.22"]]],
+          ["PERSEUS", [["california", "02", "NGC 1499", "California", "B", 2.4]]],
+          ["AURIGA", [["auriga", "03", "IC 405 · 410 · 417", "Flaming Star · Tadpoles · Spider", "B", 2, "group"]]],
+          ["TAURUS", [["spaghetti", "04", "Sh2-240", "Spaghetti (Simeis 147)", "B", 3]]],
+          ["ERIDANUS", [["eridanus", "15", "Sh2-245", "Eridanus Loop (Fishhook)", "E", 15, "filament"]]],
+          ["GEMINI", [["jellyfish", "05", "IC 443", "Jellyfish", "B", 0.8]]],
           ["ORION", [
-            ["monkey", "06", "NGC 2174", "Monkey Head", "B"],
-            ["lambda", "09", "Sh2-264", "λ Orionis Ring", "C"],
-            ["horsehead", "10", "IC 434 · NGC 2024", "Horsehead · Flame", "C"],
-            ["m42", "11", "M42", "Orion Nebula", "C"],
-            ["barnard", "12", "Sh2-276", "Barnard’s Loop", "C"]
+            ["monkey", "06", "NGC 2174", "Monkey Head", "B", 0.6],
+            ["lambda", "09", "Sh2-264", "λ Orionis Ring", "C", 5],
+            ["horsehead", "10", "IC 434 · NGC 2024", "Horsehead · Flame", "C", 1.3, "region"],
+            ["m42", "11", "M42", "Orion Nebula", "C", 1.4],
+            ["barnard", "12", "Sh2-276", "Barnard’s Loop", "C", 14]
           ]],
           ["MONOCEROS", [
-            ["cone", "07", "NGC 2264", "Cone · Christmas Tree", "C"],
-            ["rosette", "08", "NGC 2237", "Rosette", "C"],
-            ["seagull", "13", "IC 2177", "Seagull", "D"]
+            ["cone", "07", "NGC 2264", "Cone · Christmas Tree", "C", 1.2],
+            ["rosette", "08", "NGC 2237", "Rosette", "C", 1.3],
+            ["seagull", "13", "IC 2177", "Seagull", "D", 2.5]
           ]],
-          ["CANIS MAJOR", [["thor", "14", "NGC 2359", "Thor’s Helmet", "D"]]]
+          ["CANIS MAJOR", [["thor", "14", "NGC 2359", "Thor’s Helmet", "D", 0.17]]]
         ],
-        note: "PUPPIS — Gum Nebula는 북위 34°에서 최대 고도 약 13°라 제외"
+        note: "PUPPIS — Gum Nebula는 북위 34°에서 최대 고도 약 13°라 제외 · 크기는 장축 기준 근사, px는 α7 IV + 50mm(약 21″/px)"
       },
       // opens as a list of targets instead of a single preview image
       library: [
@@ -492,6 +503,10 @@
         '<span class="k-swipe">&larr; swipe map &rarr;</span>' +
       '</div>' +
       '<div class="lib-fields eng"></div>' +
+      '<div class="lib-tabs eng" role="tablist">' +
+        '<button type="button" class="on" data-mode="size">Priority · 50mm size</button>' +
+        '<button type="button" data-mode="con">By constellation</button>' +
+      '</div>' +
       '<div class="lib-roster"></div>' +
       '<p class="lib-note"></p>';
     const mapScroll = box.querySelector('.lib-map-scroll');
@@ -501,40 +516,75 @@
     const svg = box.querySelector('svg');
 
     const fields = box.querySelector('.lib-fields');
-    sky.fields.forEach(([k, name, done]) => {
+    sky.fields.forEach(([k, name, done, order]) => {
       const s = document.createElement('span');
       s.className = 'lib-field' + (done ? ' done' : '');
       s.dataset.f = k;
-      s.innerHTML = '<b></b><em></em>';
-      s.firstChild.textContent = k;
-      s.lastChild.textContent = name + (done ? ' ✓' : '');
+      s.innerHTML = '<i></i><b></b><em></em>';
+      s.children[0].textContent = done ? '✓' : order;
+      s.children[1].textContent = k;
+      s.children[2].textContent = name;
       fields.appendChild(s);
     });
 
+    // every target, flattened, with its constellation and size tier
+    const tierOf = deg => sky.tiers.find(t => deg >= t[1])[0];
+    const all = [];
+    sky.roster.forEach(([con, items]) => items.forEach(it => all.push({
+      con, key: it[0], num: it[1], id: it[2], name: it[3], f: it[4],
+      deg: it[5], note: it[6] || '', done: it[7] || '', tier: tierOf(it[5])
+    })));
+    const PX_PER_DEG = 3600 / 21.1;   // α7 IV (5.12 µm) at 50mm
+    // a thin filament is long but not much of a mass, so it sorts after a
+    // cloud of similar length (Eridanus Loop after Barnard's Loop)
+    const mass = t => t.deg * (t.note === 'filament' ? 0.5 : 1);
+    const fmtDeg = d => (d < 1 ? Math.round(d * 60) + '′' : (d % 1 ? d.toFixed(1) : d) + '°');
+
+    function row(t) {
+      const r = document.createElement('div');
+      r.className = 'lib-row' + (t.done ? ' done' : '') + ' tier-' + t.tier;
+      r.dataset.t = t.key; r.dataset.f = t.f;
+      r.innerHTML = '<span class="n"></span><span class="id"></span><span class="sz"></span>' +
+                    '<span class="nm"></span><span class="f"></span>';
+      r.children[0].textContent = t.num;
+      r.children[1].textContent = t.id;
+      r.children[2].textContent = fmtDeg(t.deg) + (t.note ? ' ' + t.note : '');
+      r.children[3].textContent = t.name;
+      r.children[4].textContent = t.done ? '✓ ' + t.done : t.tier + ' · ' + t.f + ' · ' + Math.round(t.deg * PX_PER_DEG) + 'px';
+      return r;
+    }
+
     const roster = box.querySelector('.lib-roster');
-    sky.roster.forEach(([con, items]) => {
-      const g = document.createElement('div');
-      g.className = 'lib-con';
-      g.innerHTML = '<div class="lib-con-name eng"></div>';
-      g.firstChild.textContent = con;
-      items.forEach(([key, num, id, name, f, done]) => {
-        const r = document.createElement('div');
-        r.className = 'lib-row' + (done ? ' done' : '');
-        r.dataset.t = key; r.dataset.f = f;
-        r.innerHTML = '<span class="n"></span><span class="id"></span><span class="nm"></span><span class="f"></span>';
-        r.children[0].textContent = num;
-        r.children[1].textContent = id;
-        r.children[2].textContent = name;
-        r.children[3].textContent = done ? '✓ ' + done : f;
-        g.appendChild(r);
+    function renderRoster(mode) {
+      roster.innerHTML = '';
+      roster.classList.toggle('by-size', mode === 'size');
+      const groups = mode === 'size'
+        ? sky.tiers.map(([p, , label]) => [p + ' · ' + label,
+            all.filter(t => t.tier === p).sort((a, b) => mass(b) - mass(a))])
+        : sky.roster.map(([con]) => [con, all.filter(t => t.con === con)]);
+      groups.forEach(([title, items]) => {
+        if (!items.length) return;
+        const g = document.createElement('div');
+        g.className = 'lib-con';
+        g.innerHTML = '<div class="lib-con-name eng"></div>';
+        g.firstChild.textContent = title;
+        items.forEach(t => g.appendChild(row(t)));
+        roster.appendChild(g);
       });
-      roster.appendChild(g);
+      wireRows();
+    }
+    const tabs = box.querySelector('.lib-tabs');
+    tabs.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      e.stopPropagation();
+      tabs.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+      renderRoster(b.dataset.mode);
     });
     box.querySelector('.lib-note').textContent = sky.note || '';
 
-    // field of each target, for drawing its frame on hover
     const fieldOf = {};
-    roster.querySelectorAll('.lib-row').forEach(r => { fieldOf[r.dataset.t] = r.dataset.f; });
+    all.forEach(t => { fieldOf[t.key] = t.f; });
     const FRAME = f => '.m-fr[data-f="' + f + '"], .m-fl[data-f="' + f + '"], .lib-field[data-f="' + f + '"]';
     const light = (t, f, on) => {
       box.querySelectorAll('[data-t="' + t + '"]').forEach(el => el.classList.toggle('hot', on));
@@ -546,7 +596,7 @@
       Object.keys(fieldOf).filter(t => fieldOf[t] === f).forEach(t =>
         box.querySelectorAll('[data-t="' + t + '"]').forEach(el => el.classList.toggle('hot', on)));
     };
-    box.querySelectorAll('.lib-row, .m-t').forEach(el => {
+    function wire(el) {
       const t = el.dataset.t, f = fieldOf[t];
       el.addEventListener('mouseenter', () => light(t, f, true));
       el.addEventListener('mouseleave', () => light(t, f, false));
@@ -559,7 +609,10 @@
           if (entry) entry.scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth', block: 'start' });
         });
       }
-    });
+    }
+    function wireRows() { roster.querySelectorAll('.lib-row').forEach(wire); }
+    box.querySelectorAll('.m-t').forEach(wire);
+    renderRoster('size');
     fields.querySelectorAll('.lib-field').forEach(el => {
       el.addEventListener('mouseenter', () => lightField(el.dataset.f, true));
       el.addEventListener('mouseleave', () => lightField(el.dataset.f, false));
