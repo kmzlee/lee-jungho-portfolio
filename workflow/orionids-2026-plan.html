@@ -6,7 +6,7 @@
 <style>
 :root{color-scheme:dark;--bg:#000;--fg:#f2f2ee;--fg-dim:rgba(242,242,238,0.55);--line:rgba(255,255,255,0.16);--card:#141414;--card-line:rgba(255,255,255,0.08);
 --surface:#000;--panel:#141414;--text:#f2f2ee;--text2:rgba(242,242,238,0.62);--muted:rgba(242,242,238,0.4);--grid:rgba(255,255,255,0.08);
---twi:#0d0d0d;--night:#1c1c1c;--moon:#c98500;--free:#3d3d3a;--eff:#f2f2ee;--effink:#000;--bar:#f2f2ee;--peak:#c98500}
+--twi:#0d0d0d;--night:#1c1c1c;--moon:#c98500;--free:#3d3d3a;--eff:#f2f2ee;--effink:#000;--bar:#f2f2ee;--peak:#c98500;--ha:#e66767}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--fg)}
 body{font-family:'Noto Sans KR','Poppins',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:300;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -45,7 +45,7 @@ footer{border-top:1px solid var(--line);padding:22px 28px;font-family:'Poppins',
 <section class="page-hero">
 <div class="eyebrow">Orionids 2026 · Shooting Plan</div>
 <h1>Orionids<br>Meteor Shower</h1>
-<p class="note">秋吉台 34.235°N 131.313°E · 370 m · 10/14 – 10/24 · 천문박명(태양 −18°) 기준 · JST<br>A7C + FE 14mm F1.8 GM · MSM Nomad 트래킹 · 유성 수집 세션</p>
+<p class="note">秋吉台 34.235°N 131.313°E · 370 m · 10/14 – 10/24 · 천문박명(태양 −18°) 기준 · JST<br>유성 수집 — A7C + FE 14mm F1.8 GM · MSM Nomad<br>Hα 라이브러리 — A7M4 (Astro) + Samyang AF 50mm F1.4 FE II + Astronomik Hα 12nm · Sky-Watcher GTi · 병렬 운용</p>
 </section>
 <div class="wrap">
 <div class="tiles" id="tiles"></div>
@@ -53,21 +53,24 @@ footer{border-top:1px solid var(--line);padding:22px 28px;font-family:'Poppins',
 <div class="legend">
 <span><i class="sw" style="background:var(--twi);outline:1px solid var(--line)"></i>박명·낮</span>
 <span><i class="sw" style="background:var(--night)"></i>천문학적 밤</span>
-<span><i class="sw" style="background:var(--eff)"></i>촬영 가능 (달 없음 · 방사점 ≥20°)</span>
+<span><i class="sw" style="background:var(--eff)"></i>유성 수집 (달 없음 · 방사점 ≥20°)</span>
+<span><i class="sw" style="background:var(--ha);height:5px"></i>Hα 라이브러리 (달 없음 · 프레임 중심 ≥30° · A–D 프레임 배정)</span>
 <span><svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:-1px"><path d="M7 .5A5.5 5.5 0 1 0 11.5 8 4.4 4.4 0 0 1 7 .5Z" fill="rgba(242,242,238,.75)"/></svg> 월몰 시각</span>
 </div>
 <div class="chart"><svg id="c" role="img" aria-label="날짜별 촬영 가능 시간대와 예상 유성 수"></svg></div>
 <div class="tip" id="tip"></div>
 <h2>Schedule</h2><div class="tbl"><table id="t"></table></div>
+<h2>Hα Library · 50mm Frames (시각은 10/18 기준)</h2><div class="tbl"><table id="tg"></table></div>
 <ul class="notes">
-<li><b>촬영 가능</b> = 천문박명 사이 ∩ 달이 진 뒤 ∩ 방사점 고도 20° 이상. 종료는 모두 새벽 천문박명.</li>
+<li><b>Hα 프레임</b> = Samyang 50mm 한 장(세로 27.0° × 39.6°)에 담는 단위. 베이스 파노라마와 같은 50mm라 스케일이 1:1로 맞고, <b>프레임 점유</b>는 대상 영역이 프레임 긴 변의 몇 %를 쓰는지입니다. 모두 70% 이하라 코너 화질 영향 없이 중앙부에 들어갑니다.</li>\n<li><b>Hα 배정</b> = 달 없음 ∩ 프레임 중심 고도 30° 이상에서 우선순위 A → B → C → D로 나눴습니다. 날씨로 밤을 잃으면 A부터 채우세요. 시각은 하루 약 4분씩 빨라집니다.</li>
+<li><b>유성 수집</b> = 천문박명 사이 ∩ 달이 진 뒤 ∩ 방사점 고도 20° 이상. 종료는 모두 새벽 천문박명.</li>
 <li><b>Peak met/h</b>는 PhotoPills가 예상한 그날 밤 최대 시간당 유성 수입니다(시모노세키 기준 스크린샷).</li>
 <li>방사점 좌표는 RA 6h20m / Dec +16°(피크 기준)에서 하루 약 0.7°씩 이동한다고 두고 계산했습니다. 달·태양은 astronomy-engine으로 계산했고, PhotoPills 값과 ±1분 안에서 일치합니다.</li>
 </ul>
 </div>
 <footer>© LEE JUNGHO · ORIONIDS 2026</footer>
 <script>
-const D=[{"day": 14, "sunset": "17:42", "dusk": "19:05", "dawn": "04:56", "sunrise": "06:19", "duskm": 65.63387938333334, "dawnm": 656.2254336166666, "illum": 15, "r30": "00:28", "r30m": 388.0, "r20": "23:39", "r20m": 339, "rate": 7, "moonsetm": 91.79410800000001, "moonset_hm": "19:31", "shootS": 339, "shootmin": 317, "expect": 29.1}, {"day": 15, "sunset": "17:40", "dusk": "19:04", "dawn": "04:56", "sunrise": "06:20", "duskm": 64.42226124999999, "dawnm": 656.9864485333333, "illum": 23, "r30": "00:26", "r30m": 386.0, "r20": "23:38", "r20m": 338, "rate": 8, "moonsetm": 137.2122739333333, "moonset_hm": "20:17", "shootS": 338, "shootmin": 319, "expect": 33.4}, {"day": 16, "sunset": "17:39", "dusk": "19:03", "dawn": "04:57", "sunrise": "06:21", "duskm": 63.22819545, "dawnm": 657.7481775166667, "illum": 31, "r30": "00:26", "r30m": 386.0, "r20": "23:36", "r20m": 336, "rate": 9, "moonsetm": 188.11003505, "moonset_hm": "21:08", "shootS": 336, "shootmin": 322, "expect": 38.0}, {"day": 17, "sunset": "17:38", "dusk": "19:02", "dawn": "04:58", "sunrise": "06:22", "duskm": 62.052075916666666, "dawnm": 658.5107390666667, "illum": 40, "r30": "00:24", "r30m": 384.0, "r20": "23:35", "r20m": 335, "rate": 10, "moonsetm": 243.45800578333333, "moonset_hm": "22:03", "shootS": 335, "shootmin": 324, "expect": 42.5}, {"day": 18, "sunset": "17:37", "dusk": "19:00", "dawn": "04:59", "sunrise": "06:23", "duskm": 60.894304016666666, "dawnm": 659.2742590833333, "illum": 50, "r30": "00:22", "r30m": 382.0, "r20": "23:33", "r20m": 333, "rate": 13, "moonsetm": 301.6893625166667, "moonset_hm": "23:01", "shootS": 333, "shootmin": 326, "expect": 55.9}, {"day": 19, "sunset": "17:36", "dusk": "18:59", "dawn": "05:00", "sunrise": "06:23", "duskm": 59.7552883, "dawnm": 660.03887255, "illum": 59, "r30": "00:20", "r30m": 380.0, "r20": "23:32", "r20m": 332, "rate": 17, "moonsetm": 361.3166086, "moonset_hm": "00:01", "shootS": 361.3166086, "shootmin": 299, "expect": 70.1}, {"day": 20, "sunset": "17:34", "dusk": "18:58", "dawn": "05:00", "sunrise": "06:24", "duskm": 58.635444066666665, "dawnm": 660.8047242333333, "illum": 68, "r30": "00:20", "r30m": 380.0, "r20": "23:31", "r20m": 331, "rate": 22, "moonsetm": 421.41693628333337, "moonset_hm": "01:01", "shootS": 421.41693628333337, "shootmin": 239, "expect": 78.5}, {"day": 21, "sunset": "17:33", "dusk": "18:57", "dawn": "05:01", "sunrise": "06:25", "duskm": 57.5351922, "dawnm": 661.5719681166667, "illum": 77, "r30": "00:18", "r30m": 378.0, "r20": "23:29", "r20m": 329, "rate": 24, "moonsetm": 481.7861478166667, "moonset_hm": "02:01", "shootS": 481.7861478166667, "shootmin": 180, "expect": 68.3}, {"day": 22, "sunset": "17:32", "dusk": "18:56", "dawn": "05:02", "sunrise": "06:26", "duskm": 56.45495796666667, "dawnm": 662.3407656666666, "illum": 85, "r30": "00:16", "r30m": 376.0, "r20": "23:28", "r20m": 328, "rate": 22, "moonsetm": 542.8434983, "moonset_hm": "03:02", "shootS": 542.8434983, "shootmin": 119, "expect": 43.3}, {"day": 23, "sunset": "17:31", "dusk": "18:55", "dawn": "05:03", "sunrise": "06:27", "duskm": 55.39516966666667, "dawnm": 663.1112827333333, "illum": 92, "r30": "00:16", "r30m": 376.0, "r20": "23:26", "r20m": 326, "rate": 18, "moonsetm": 605.43557055, "moonset_hm": "04:05", "shootS": 605.43557055, "shootmin": 58, "expect": 17.4}, {"day": 24, "sunset": "17:30", "dusk": "18:54", "dawn": "05:03", "sunrise": "06:28", "duskm": 54.35625725, "dawnm": 663.8836855000001, "illum": 97, "r30": "00:14", "r30m": 374.0, "r20": "23:25", "r20m": 325, "rate": 10, "moonsetm": 670.5906731666668, "moonset_hm": "05:10", "shootS": null, "shootmin": 0, "expect": 0.0}];
+const D=[{"day": 14, "sunset": "17:42", "dusk": "19:05", "dawn": "04:56", "sunrise": "06:19", "duskm": 65.63387938333334, "dawnm": 656.2254336166666, "illum": 15, "r30": "00:28", "r20": "23:39", "rate": 7, "moonsetm": 91.79410800000001, "moonset_hm": "19:31", "shootS": 339, "shootmin": 317, "haS": 319, "hamin": 337, "plan": [[319, 408, "C"], [408, 656.2254336166666, "A"]]}, {"day": 15, "sunset": "17:40", "dusk": "19:04", "dawn": "04:56", "sunrise": "06:20", "duskm": 64.42226124999999, "dawnm": 656.9864485333333, "illum": 23, "r30": "00:26", "r20": "23:38", "rate": 8, "moonsetm": 137.2122739333333, "moonset_hm": "20:17", "shootS": 338, "shootmin": 319, "haS": 315, "hamin": 342, "plan": [[315, 404, "C"], [404, 656.9864485333333, "A"]]}, {"day": 16, "sunset": "17:39", "dusk": "19:03", "dawn": "04:57", "sunrise": "06:21", "duskm": 63.22819545, "dawnm": 657.7481775166667, "illum": 31, "r30": "00:26", "r20": "23:36", "rate": 9, "moonsetm": 188.11003505, "moonset_hm": "21:08", "shootS": 336, "shootmin": 322, "haS": 311, "hamin": 347, "plan": [[311, 409, "C"], [409, 657.7481775166667, "B"]]}, {"day": 17, "sunset": "17:38", "dusk": "19:02", "dawn": "04:58", "sunrise": "06:22", "duskm": 62.052075916666666, "dawnm": 658.5107390666667, "illum": 40, "r30": "00:24", "r20": "23:35", "rate": 10, "moonsetm": 243.45800578333333, "moonset_hm": "22:03", "shootS": 335, "shootmin": 324, "haS": 307, "hamin": 352, "plan": [[307, 405, "C"], [405, 658.5107390666667, "B"]]}, {"day": 18, "sunset": "17:37", "dusk": "19:00", "dawn": "04:59", "sunrise": "06:23", "duskm": 60.894304016666666, "dawnm": 659.2742590833333, "illum": 50, "r30": "00:22", "r20": "23:33", "rate": 13, "moonsetm": 301.6893625166667, "moonset_hm": "23:01", "shootS": 333, "shootmin": 326, "haS": 303, "hamin": 356, "plan": [[303, 392, "C"], [392, 659.2742590833333, "A"]]}, {"day": 19, "sunset": "17:36", "dusk": "18:59", "dawn": "05:00", "sunrise": "06:23", "duskm": 59.7552883, "dawnm": 660.03887255, "illum": 59, "r30": "00:20", "r20": "23:32", "rate": 17, "moonsetm": 361.3166086, "moonset_hm": "00:01", "shootS": 361.3166086, "shootmin": 299, "haS": 388, "hamin": 272, "plan": [[388, 518, "A"], [518, 660.03887255, "D"]]}, {"day": 20, "sunset": "17:34", "dusk": "18:58", "dawn": "05:00", "sunrise": "06:24", "duskm": 58.635444066666665, "dawnm": 660.8047242333333, "illum": 68, "r30": "00:20", "r20": "23:31", "rate": 22, "moonsetm": 421.41693628333337, "moonset_hm": "01:01", "shootS": 421.41693628333337, "shootmin": 239, "haS": 422, "hamin": 239, "plan": [[422, 514, "B"], [514, 660.8047242333333, "D"]]}, {"day": 21, "sunset": "17:33", "dusk": "18:57", "dawn": "05:01", "sunrise": "06:25", "duskm": 57.5351922, "dawnm": 661.5719681166667, "illum": 77, "r30": "00:18", "r20": "23:29", "rate": 24, "moonsetm": 481.7861478166667, "moonset_hm": "02:01", "shootS": 481.7861478166667, "shootmin": 180, "haS": 482, "hamin": 180, "plan": [[482, 661.5719681166667, "A"]]}, {"day": 22, "sunset": "17:32", "dusk": "18:56", "dawn": "05:02", "sunrise": "06:26", "duskm": 56.45495796666667, "dawnm": 662.3407656666666, "illum": 85, "r30": "00:16", "r20": "23:28", "rate": 22, "moonsetm": 542.8434983, "moonset_hm": "03:02", "shootS": 542.8434983, "shootmin": 119, "haS": 543, "hamin": 119, "plan": [[543, 662.3407656666666, "B"]]}, {"day": 23, "sunset": "17:31", "dusk": "18:55", "dawn": "05:03", "sunrise": "06:27", "duskm": 55.39516966666667, "dawnm": 663.1112827333333, "illum": 92, "r30": "00:16", "r20": "23:26", "rate": 18, "moonsetm": 605.43557055, "moonset_hm": "04:05", "shootS": 605.43557055, "shootmin": 58, "haS": 606, "hamin": 57, "plan": [[606, 663.1112827333333, "A"]]}, {"day": 24, "sunset": "17:30", "dusk": "18:54", "dawn": "05:03", "sunrise": "06:28", "duskm": 54.35625725, "dawnm": 663.8836855000001, "illum": 97, "r30": "00:14", "r20": "23:25", "rate": 10, "moonsetm": 670.5906731666668, "moonset_hm": "05:10", "shootS": null, "shootmin": 0, "haS": null, "hamin": 0, "plan": []}];
 const DOW=['일','월','화','수','목','금','토'];
 const lbl=o=>{const d=new Date(2026,9,o.day);return `10/${o.day} (${DOW[d.getDay()]})`;};
 const hm=m=>{const t=((Math.round(m)+18*60)%1440+1440)%1440;return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
@@ -85,7 +88,7 @@ document.getElementById('tiles').innerHTML=[
 ].map(([k,v,n])=>`<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join('');
 // chart
 const svg=document.getElementById('c'),NS='http://www.w3.org/2000/svg';
-const L=118,TW=660,G=34,BW=250,R=D.length,RH=46,TOP=40,W=L+TW+G+BW+110,H=TOP+R*RH+28;
+const L=118,TW=660,G=34,BW=250,R=D.length,RH=60,TOP=40,W=L+TW+G+BW+110,H=TOP+R*RH+28;
 svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
 const x=m=>L+m/720*TW;const maxE=Math.max(...D.map(o=>o.rate));const bx=v=>v/maxE*BW;
 const el=(n,a,p=svg)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
@@ -95,9 +98,9 @@ for(let h=0;h<=12;h++){const X=x(h*60);el('line',{x1:X,x2:X,y1:TOP-6,y2:TOP+R*RH
 txt('PEAK · PHOTOPILLS MET/H',{x:L+TW+G,y:TOP-14,'font-size':11,'letter-spacing':'.12em'});
 const tip=document.getElementById('tip');
 D.forEach((o,i)=>{
- const y=TOP+i*RH,bh=24,by=y+5,g=el('g',{});
+ const y=TOP+i*RH,bh=22,by=y+4,g=el('g',{});
  const isPk=o.day===peakDay;
- if(isPk) el('rect',{x:4,y:y-3,width:W-8,height:RH-4,rx:8,fill:'var(--panel)'},g);
+ if(isPk) el('rect',{x:4,y:y-3,width:W-8,height:RH-2,rx:8,fill:'var(--panel)'},g);
  txt(lbl(o),{x:14,y:by+bh/2+4,'font-size':13,fill:'var(--text)','font-weight':isPk?500:300},g);
  if(isPk) txt('PEAK',{x:14,y:by+bh/2+18,'font-size':10,fill:'var(--peak)','font-weight':500,'letter-spacing':'.18em'},g);
  el('rect',{x:x(0),y:by,width:TW,height:bh,rx:4,fill:'var(--twi)'},g);
@@ -111,6 +114,10 @@ D.forEach((o,i)=>{
   else if(room>86) txt(short,{x:lx,y:cy+4,'font-size':11.5,fill:'var(--effink)','font-weight':500},g);
   else o._narrow=`${short}  ${dur(o.shootmin)}`;
  }
+ o.plan.forEach(([a,b,k],j)=>{const hx=x(a)+(j?1:1),hw=x(b)-x(a)-(j<o.plan.length-1?2:1);
+  el('rect',{x:hx,y:by+bh+4,width:hw,height:13,rx:3,fill:'var(--ha)'},g);
+  if(hw>14) txt(k,{x:hx+hw/2,y:by+bh+14,'font-size':10,'text-anchor':'middle',fill:'#000','font-weight':600},g);});
+ if(o.haS!=null&&o.haS<o.shootS-20) txt(`Hα ${hm(o.haS)}–`,{x:x(o.haS)-6,y:by+bh+14,'font-size':10,'text-anchor':'end',fill:'var(--ha)'},g);
  // moon icon at moonset
  const moon=(cx,lab,anchorEnd)=>{const p=el('path',{d:'M7 .5A5.5 5.5 0 1 0 11.5 8 4.4 4.4 0 0 1 7 .5Z',fill:'rgba(242,242,238,.8)',transform:`translate(${cx-6},${cy-6})`},g);
    txt(lab,{x:anchorEnd?cx-10:cx+10,y:cy+4,'font-size':11,'text-anchor':anchorEnd?'end':'start',fill:'var(--text2)'},g);};
@@ -122,16 +129,19 @@ D.forEach((o,i)=>{
  const bw=bx(o.rate);
  if(bw>0) el('rect',{x:L+TW+G,y:by+4,width:Math.max(bw,4),height:bh-8,rx:4,fill:isPk?'var(--moon)':'var(--bar)','fill-opacity':isPk?1:.78},g);
  txt(`${o.rate} met/h`,{x:L+TW+G+bw+8,y:by+bh/2+4,'font-size':12,fill:'var(--text)'},g);
- const hit=el('rect',{x:0,y:y-3,width:W,height:RH-4,fill:'transparent'},g);
+ const hit=el('rect',{x:0,y:y-3,width:W,height:RH-2,fill:'transparent'},g);
  hit.addEventListener('mousemove',ev=>{tip.innerHTML=`<b>${lbl(o)} → 10/${o.day+1}${isPk?' · PEAK':''}</b>`+
   [['일몰',o.sunset],['천문박명 끝 (저녁)',o.dusk],['월몰',o.moonset_hm+(o.moonsetm>o.dawnm?' (박명 뒤)':'')],['달 위상',o.illum+'%'],['방사점 20° 도달',o.r20],['방사점 30° 도달',o.r30],
-   ['촬영 가능',o.shootS!=null?`${hm(o.shootS)}–${o.dawn}`:'—'],['촬영 시간',dur(o.shootmin)],['천문박명 시작 (새벽)',o.dawn],['Peak (PhotoPills)',o.rate+' met/h']]
+   ['촬영 가능',o.shootS!=null?`${hm(o.shootS)}–${o.dawn}`:'—'],['촬영 시간',dur(o.shootmin)],['Hα 창',o.haS!=null?`${hm(o.haS)}–${o.dawn}`:'—'],['Hα 배정',o.plan.map(([a,b,k])=>`${k} ${hm(a)}–${hm(b)}`).join('<br>')||'—'],['천문박명 시작 (새벽)',o.dawn],['Peak (PhotoPills)',o.rate+' met/h']]
   .map(([a,b])=>`<div class="r"><span>${a}</span><span>${b}</span></div>`).join('');
   tip.style.opacity=1;const tx=Math.min(ev.clientX+16,innerWidth-tip.offsetWidth-10);tip.style.left=tx+'px';tip.style.top=Math.min(ev.clientY+14,innerHeight-tip.offsetHeight-10)+'px'});
  hit.addEventListener('mouseleave',()=>tip.style.opacity=0);
 });
 // table
-const cols=['밤','일몰','천문박명 끝','월몰','달','방사점 20°','방사점 30°','촬영 가능','시간','천문박명 시작','Peak met/h'];
+const cols=['밤','일몰','천문박명 끝','월몰','달','방사점 20°','방사점 30°','유성 수집','시간','Hα 창','Hα 배정','천문박명 시작','Peak met/h'];
 document.getElementById('t').innerHTML='<thead><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>'+
- D.map(o=>`<tr class="${o.day===peakDay?'pk':''}"><td>${lbl(o)} → ${o.day+1}${o.day===peakDay?' · PEAK':''}</td><td>${o.sunset}</td><td>${o.dusk}</td><td>${o.moonset_hm}</td><td>${o.illum}%</td><td>${o.r20}</td><td>${o.r30}</td><td>${o.shootS!=null?hm(o.shootS)+'–'+o.dawn:'—'}</td><td>${dur(o.shootmin)}</td><td>${o.dawn}</td><td>${o.rate}</td></tr>`).join('')+'</tbody>';
+ D.map(o=>`<tr class="${o.day===peakDay?'pk':''}"><td>${lbl(o)} → ${o.day+1}${o.day===peakDay?' · PEAK':''}</td><td>${o.sunset}</td><td>${o.dusk}</td><td>${o.moonset_hm}</td><td>${o.illum}%</td><td>${o.r20}</td><td>${o.r30}</td><td>${o.shootS!=null?hm(o.shootS)+'–'+o.dawn:'—'}</td><td>${dur(o.shootmin)}</td><td>${o.haS!=null?hm(o.haS)+'–'+o.dawn:'—'}</td><td>${o.plan.map(([a,b,k])=>`${k} ${hm(a)}–${hm(b)}`).join(' → ')||'—'}</td><td>${o.dawn}</td><td>${o.rate}</td></tr>`).join('')+'</tbody>';
+const TG=[{"k": "A", "name": "Orion", "tg": "Barnard's Loop \u00b7 Meissa Ring (\u03bb Ori) \u00b7 M42 \u00b7 Horsehead/IC 434", "ra": "5h40m", "dec": "+1.0\u00b0", "orient": "Portrait", "size": "11.5\u00b0 \u00d7 23.9\u00b0", "fill": 60, "a30": "00:32", "transit": "04:06", "maxalt": 57, "alloc": 18.9}, {"k": "B", "name": "Monoceros \u00b7 Gemini", "tg": "Rosette NGC 2237 \u00b7 Cone/Fox Fur NGC 2264 \u00b7 Monkey Head NGC 2174 \u00b7 Jellyfish IC 443", "ra": "6h25m", "dec": "+13.5\u00b0", "orient": "Portrait", "size": "8.7\u00b0 \u00d7 18.6\u00b0", "fill": 47, "a30": "00:41", "transit": "04:51", "maxalt": 69, "alloc": 11.9}, {"k": "C", "name": "Auriga \u00b7 Taurus", "tg": "Flaming Star IC 405 \u00b7 Tadpoles IC 410 \u00b7 Spaghetti Sh2-240", "ra": "5h27m", "dec": "+31.0\u00b0", "orient": "Portrait", "size": "7.3\u00b0 \u00d7 8.3\u00b0", "fill": 27, "a30": "23:03", "transit": "03:53", "maxalt": 87, "alloc": 7.7}, {"k": "D", "name": "Monoceros \u00b7 Canis Major", "tg": "Seagull IC 2177", "ra": "7h04m", "dec": "-10.5\u00b0", "orient": "Portrait", "size": "3.2\u00b0 \u00d7 3.2\u00b0", "fill": 12, "a30": "02:42", "transit": "04:59", "maxalt": 45, "alloc": 4.8}];
+document.getElementById('tg').innerHTML='<thead><tr><th>프레임</th><th>별자리</th><th>대상</th><th>중심 RA / Dec</th><th>방향</th><th>대상 영역</th><th>프레임 점유</th><th>30° 도달</th><th>남중</th><th>최대 고도</th><th>배정 합계</th></tr></thead><tbody>'+
+ TG.map(t=>`<tr><td style="color:var(--ha)">${t.k}</td><td>${t.name}</td><td style="white-space:normal;min-width:260px">${t.tg}</td><td>${t.ra} / ${t.dec}</td><td>${t.orient}</td><td>${t.size}</td><td>${t.fill}%</td><td>${t.a30}</td><td>${t.transit}</td><td>${t.maxalt}°</td><td>${t.alloc}h</td></tr>`).join('')+'</tbody>';
 </script></body></html>
