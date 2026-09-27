@@ -680,6 +680,31 @@ figure.frame:hover .info-icon{
 .lib-roster.by-size .lib-con-name{ letter-spacing:0.1em; }
 .lib-note{ font-size:11px; color:var(--fg-dim); line-height:1.7; margin-top:-4px; }
 @container (max-width: 440px){ .lib-roster{ column-count:1; } }
+/* planned target being looked at: orange mark + echo (three rings leaving
+   it one after another). Captured targets keep their own red. */
+.m-t.hot:not(.done) .m-neb,
+.m-t.hot:not(.done) .m-ring{ stroke:#ff9a3c; stroke-opacity:1; stroke-dasharray:none; stroke-width:1.5; }
+.m-t.hot:not(.done) .m-neb{ fill:#ff9a3c; fill-opacity:0.18; }
+.m-t.hot:not(.done) .m-tn{ fill:#ffb36b; fill-opacity:1; }
+.m-echo circle{
+  fill:none; stroke:#ff9a3c; stroke-width:1.2;
+  opacity:0; pointer-events:none;
+  transform-box:fill-box; transform-origin:center;
+}
+.m-t.hot:not(.done) .m-echo circle{ animation:m-echo 1.9s cubic-bezier(0.2,0.6,0.3,1) infinite; }
+.m-t.hot:not(.done) .m-echo circle:nth-child(2){ animation-delay:0.32s; }
+.m-t.hot:not(.done) .m-echo circle:nth-child(3){ animation-delay:0.64s; }
+@keyframes m-echo{
+  0%{ transform:scale(0.9); opacity:0.95; }
+  100%{ transform:scale(3.1); opacity:0; }
+}
+.lib-row.hot:not(.done) .id, .lib-row.hot:not(.done) .n{ color:#ffb36b; }
+.lib-row.pinned:not(.done){ box-shadow:inset 2px 0 0 #ff9a3c; background:rgba(255,154,60,0.06); }
+@media (prefers-reduced-motion: reduce){
+  .m-t.hot:not(.done) .m-echo circle{ animation:none; }
+  .m-t.hot:not(.done) .m-echo circle:first-child{ opacity:0.8; transform:scale(1.4); }
+}
+
 .lib-frame{ position:relative; }
 .lib-stage{
   display:block; position:relative; width:100%; aspect-ratio:3 / 2;

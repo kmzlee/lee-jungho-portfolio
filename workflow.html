@@ -579,6 +579,7 @@
         roster.appendChild(g);
       });
       wireRows();
+      if (pinned) roster.querySelectorAll('[data-t="' + pinned + '"]').forEach(x => x.classList.add('pinned', 'hot'));
     }
     const tabs = box.querySelector('.lib-tabs');
     tabs.addEventListener('click', e => {
@@ -600,10 +601,39 @@
       mapTag.textContent = on && f ? (fieldInfo[f] || 'Field ' + f) + ' · 50mm' : '';
       mapTag.classList.toggle('on', !!(on && f));
     };
+    // a planned target that is looked at gets an orange mark with an echo —
+    // three rings leaving it one after another. The rings are built the first
+    // time, from the size of the target's outline on the map.
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    function ensureEcho(t) {
+      const g = svg.querySelector('.m-t[data-t="' + t + '"]');
+      if (!g || g.classList.contains('done') || g.querySelector('.m-echo')) return;
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      g.querySelectorAll('.m-neb, .m-ring').forEach(p => {
+        const b = p.getBBox();
+        x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y);
+        x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height);
+      });
+      if (!isFinite(x0)) return;
+      const r = Math.max(6, Math.min(26, Math.min(x1 - x0, y1 - y0) / 2 + 3));
+      const e = document.createElementNS(SVGNS, 'g');
+      e.setAttribute('class', 'm-echo');
+      for (let i = 0; i < 3; i++) {
+        const c = document.createElementNS(SVGNS, 'circle');
+        c.setAttribute('cx', ((x0 + x1) / 2).toFixed(1));
+        c.setAttribute('cy', ((y0 + y1) / 2).toFixed(1));
+        c.setAttribute('r', r.toFixed(1));
+        e.appendChild(c);
+      }
+      g.insertBefore(e, g.firstChild);
+    }
+    let pinned = null;   // a planned target picked with a click/tap stays marked
     const light = (t, f, on) => {
+      if (on) ensureEcho(t);
       box.querySelectorAll('[data-t="' + t + '"]').forEach(el => el.classList.toggle('hot', on));
       if (f) box.querySelectorAll(FRAME(f)).forEach(el => el.classList.toggle('hot', on));
       tag(f, on);
+      if (!on && pinned && pinned !== t) light(pinned, fieldOf[pinned], true);
     };
     // a field chip lights its frame and every target inside it
     const lightField = (f, on) => {
@@ -615,7 +645,29 @@
     function wire(el) {
       const t = el.dataset.t, f = fieldOf[t];
       el.addEventListener('mouseenter', () => light(t, f, true));
-      el.addEventListener('mouseleave', () => light(t, f, false));
+      el.addEventListener('mouseleave', () => { if (t !== pinned) light(t, f, false); });
+      if (!el.classList.contains('done')) {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', e => {
+          e.stopPropagation();
+          const prev = pinned;
+          pinned = prev === t ? null : t;
+          if (prev) {
+            box.querySelectorAll('[data-t="' + prev + '"]').forEach(x => x.classList.remove('pinned'));
+            if (prev !== t) light(prev, fieldOf[prev], false);
+          }
+          if (pinned) {
+            box.querySelectorAll('[data-t="' + t + '"]').forEach(x => x.classList.add('pinned'));
+            light(t, f, true);
+            // picked from the list below the map: bring the map into view
+            const m = box.querySelector('.lib-map').getBoundingClientRect();
+            if (el.classList.contains('lib-row') && (m.bottom < 60 || m.top > window.innerHeight - 60))
+              box.querySelector('.lib-map').scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth', block: 'center' });
+          } else {
+            light(t, f, false);
+          }
+        });
+      }
       // a captured target jumps down to its entry
       if (el.classList.contains('done')) {
         el.style.cursor = 'pointer';
