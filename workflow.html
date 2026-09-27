@@ -601,13 +601,24 @@
       mapTag.textContent = on && f ? (fieldInfo[f] || 'Field ' + f) + ' · 50mm' : '';
       mapTag.classList.toggle('on', !!(on && f));
     };
-    // a planned target that is looked at gets an orange mark with an echo —
-    // three rings leaving it one after another. The rings are built the first
-    // time, from the size of the target's outline on the map.
+    // a planned target that is looked at gets an orange mark inside a soft
+    // "ward" — a faint glowing field around it that slowly breathes in and
+    // out. Built the first time, sized from the target's outline on the map.
     const SVGNS = 'http://www.w3.org/2000/svg';
+    if (!svg.querySelector('#wardGlow')) {
+      const defs = document.createElementNS(SVGNS, 'defs');
+      defs.innerHTML =
+        '<radialGradient id="wardGlow">' +
+          '<stop offset="0%" stop-color="#ff9a3c" stop-opacity="0"/>' +
+          '<stop offset="62%" stop-color="#ff9a3c" stop-opacity="0.10"/>' +
+          '<stop offset="88%" stop-color="#ff9a3c" stop-opacity="0.32"/>' +
+          '<stop offset="100%" stop-color="#ff9a3c" stop-opacity="0"/>' +
+        '</radialGradient>';
+      svg.insertBefore(defs, svg.firstChild);
+    }
     function ensureEcho(t) {
       const g = svg.querySelector('.m-t[data-t="' + t + '"]');
-      if (!g || g.classList.contains('done') || g.querySelector('.m-echo')) return;
+      if (!g || g.classList.contains('done') || g.querySelector('.m-ward')) return;
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       g.querySelectorAll('.m-neb, .m-ring').forEach(p => {
         const b = p.getBBox();
@@ -615,17 +626,14 @@
         x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height);
       });
       if (!isFinite(x0)) return;
-      const r = Math.max(6, Math.min(26, Math.min(x1 - x0, y1 - y0) / 2 + 3));
-      const e = document.createElementNS(SVGNS, 'g');
-      e.setAttribute('class', 'm-echo');
-      for (let i = 0; i < 3; i++) {
-        const c = document.createElementNS(SVGNS, 'circle');
-        c.setAttribute('cx', ((x0 + x1) / 2).toFixed(1));
-        c.setAttribute('cy', ((y0 + y1) / 2).toFixed(1));
-        c.setAttribute('r', r.toFixed(1));
-        e.appendChild(c);
-      }
-      g.insertBefore(e, g.firstChild);
+      const cx = ((x0 + x1) / 2).toFixed(1), cy = ((y0 + y1) / 2).toFixed(1);
+      const r = Math.max(14, Math.min(60, Math.max(x1 - x0, y1 - y0) / 2 + 9));
+      const w = document.createElementNS(SVGNS, 'g');
+      w.setAttribute('class', 'm-ward');
+      w.innerHTML =
+        '<circle class="glow" cx="' + cx + '" cy="' + cy + '" r="' + r.toFixed(1) + '"/>' +
+        '<circle class="edge" cx="' + cx + '" cy="' + cy + '" r="' + (r * 0.86).toFixed(1) + '"/>';
+      g.insertBefore(w, g.firstChild);
     }
     let pinned = null;   // a planned target picked with a click/tap stays marked
     const light = (t, f, on) => {
