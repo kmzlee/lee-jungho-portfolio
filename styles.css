@@ -542,17 +542,6 @@ figure.frame:hover .info-icon{
   container-type:inline-size;
   scroll-margin-top:24px;
 }
-/* Milkyway Arch 001: a compact grid of frames instead of the Ha Library's
-   one-big-entry-at-a-time stack -- four 24mm subs read fine side by side. */
-.arch-grid{
-  display:grid; grid-template-columns:repeat(2, 1fr); gap:20px 24px;
-  width:100%; margin-top:6px;
-}
-.arch-entry{ gap:0; }
-.arch-entry .lib-stage{ aspect-ratio:3/2; }
-.arch-entry.hot .lib-stage{ box-shadow:0 0 0 1px rgba(255,122,102,0.7); }
-.arch-entry .lib-cap{ margin-top:8px; }
-@container (max-width: 480px){ .arch-grid{ grid-template-columns:1fr; } }
 /* with the map on top the library is longer than the stage, so on wide
    screens the panel scrolls on its own and the wheel stays put */
 @media (min-width:901px){
