@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project: Nekodake Sunset</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Poppins:wght@300;400&display=swap">
+<style>
+:root{
+  --bg:#0a0a0a; --surface:#191919; --surface-2:#1a1c20; --sunk:#262a2e;
+  --ink:#ffffff; --ink-2:#b7bbc1; --body:#dadbdf; --muted:#7d8187;
+  --line:#212327; --line-2:#191b1e; --hair:rgba(255,255,255,.14); --hair-2:rgba(255,255,255,.25);
+  --sun:#ff7a17; --moon:#8fb4ff;
+  --r:8px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0; background:var(--bg); color:var(--body);
+  font-family:"Inter","IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:15.5px; font-weight:400; line-height:1.72; letter-spacing:-.006em;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(255,122,23,.28);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+.narrow{max-width:72ch}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:400;color:var(--ink)}
+b,strong{font-weight:500;color:var(--ink)}
+.eng{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.eyebrow{
+  font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:11.5px;font-weight:400;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink);
+}
+
+.hero{padding:72px 0 0}
+.hero h1{
+  font-size:clamp(28px,5vw,56px);line-height:1.1;letter-spacing:-.03em;
+  font-weight:400;margin:18px 0 0;color:var(--ink);
+}
+.hero .sub{margin-top:16px;font-size:16px;color:var(--body);max-width:66ch}
+
+section{margin-top:86px}
+section > .eyebrow{display:block;margin-bottom:14px}
+section h2{font-size:clamp(22px,3vw,32px);line-height:1.16;letter-spacing:-.024em;margin-bottom:18px}
+section p{margin:0 0 15px}
+.lede{color:var(--body)}
+
+/* ── hero photo ── */
+.hero-photo{margin-top:34px}
+.hero-stage{position:relative;display:block;width:100%;border-radius:var(--r);overflow:hidden;background:#000;border:1px solid var(--line)}
+.hero-stage img{display:block;width:100%;height:auto}
+.cap{margin-top:12px;font-size:12px;color:var(--muted);font-family:"JetBrains Mono",ui-monospace,monospace;letter-spacing:.02em}
+
+/* ── plan grid (PhotoPills) ── */
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:22px;align-items:start}
+.plan-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.plan-card img{display:block;width:100%;height:auto}
+.plan-cap{padding:12px 14px 14px}
+.plan-cap b{display:block;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.02em;color:var(--ink)}
+.plan-cap span{display:block;margin-top:5px;font-size:12px;color:var(--muted);line-height:1.6}
+.plan-cap .hit{color:var(--sun)}
+
+/* ── zoomable photos + lightbox ── */
+.zoomable{position:relative;display:block;cursor:zoom-in;width:100%}
+.zoomable img{transition:transform .4s cubic-bezier(.2,.7,.3,1),filter .3s ease}
+.zoomable:hover img,.zoomable:focus-visible img{transform:scale(1.035);filter:brightness(.82) saturate(1.05)}
+.zoomable:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.zb-badge{
+  position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;
+  background:rgba(10,10,10,.55);border:1px solid rgba(255,255,255,.45);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;font-style:italic;font-weight:500;
+  opacity:0;transform:translateY(-3px);transition:opacity .2s ease,transform .2s ease;pointer-events:none;
+}
+.zoomable:hover .zb-badge,.zoomable:focus-visible .zb-badge{opacity:1;transform:translateY(0)}
+
+.lightbox{
+  position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+  padding:24px;opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.lightbox.open{opacity:1;pointer-events:auto}
+.lightbox-backdrop{position:absolute;inset:0;background:rgba(6,6,7,.88);backdrop-filter:blur(2px)}
+.lightbox-panel{
+  position:relative;z-index:1;max-width:1040px;width:100%;max-height:88vh;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  overflow:auto;display:grid;grid-template-columns:1.15fr 1fr;
+  transform:translateY(10px);transition:transform .25s ease;
+}
+.lightbox.open .lightbox-panel{transform:translateY(0)}
+.lightbox-media{background:#000;display:flex;align-items:center;justify-content:center;min-height:240px}
+.lightbox-media img{display:block;width:100%;height:100%;object-fit:contain;max-height:88vh}
+.lightbox-body{padding:34px 34px 28px;display:flex;flex-direction:column}
+.lightbox-loc{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.05em;color:var(--muted);margin:10px 0 22px}
+.lightbox-title{font-size:clamp(21px,2.5vw,29px);line-height:1.16;letter-spacing:-.024em;color:var(--ink);font-weight:400;margin:0}
+.lightbox-desc p{font-size:14px;line-height:1.75;color:var(--body);margin:0 0 14px}
+.lightbox-desc p:last-child{margin-bottom:0}
+.lightbox-specs{
+  margin-top:auto;padding-top:16px;border-top:1px solid var(--line);
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.03em;color:var(--muted);
+}
+.lightbox-specs[hidden]{display:none}
+.lightbox-close{
+  position:absolute;top:14px;right:14px;z-index:2;width:32px;height:32px;border-radius:50%;
+  background:rgba(10,10,10,.5);border:1px solid var(--hair-2);color:#fff;font-size:16px;line-height:1;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.lightbox-close:hover{background:rgba(10,10,10,.8)}
+@media (max-width:760px){
+  .lightbox-panel{grid-template-columns:1fr;max-height:92vh}
+  .lightbox-media{max-height:38vh}
+  .lightbox-body{padding:24px 22px}
+}
+
+/* ── note box ── */
+.note{
+  margin-top:18px;padding:16px 18px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:var(--r);font-size:13.5px;color:var(--ink-2);line-height:1.7;
+}
+.note b{color:var(--ink)}
+
+/* ── two-up verdict cards ── */
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:22px}
+.why-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}
+.why-card .tag{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.why-card h3{margin-top:10px;font-size:18px;color:var(--ink);font-weight:400}
+.why-card p{font-size:13.5px;color:var(--body);margin:12px 0 0}
+
+/* ── moon/sun comparison table ── */
+table.moon-table{width:100%;border-collapse:collapse;margin-top:22px;font-size:13px}
+table.moon-table th,table.moon-table td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
+table.moon-table th{color:var(--muted);font-weight:400;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+table.moon-table td.eng{font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--ink-2)}
+table.moon-table tr.pick td{color:var(--ink)}
+table.moon-table tr.pick td:first-child{position:relative;padding-left:22px}
+table.moon-table tr.pick td:first-child::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:var(--sun)}
+table.moon-table td.dim{color:var(--muted)}
+
+/* ── results grid ── */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.result-grid .full{grid-column:1/-1}
+@media (max-width:700px){.result-grid{grid-template-columns:1fr}}
+
+footer{margin-top:90px;padding-top:26px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+footer p{margin:0 0 10px;max-width:84ch}
+footer b{color:var(--ink-2);font-weight:400}
+footer a{color:var(--ink-2)}
+footer a:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:640px){
+  .hero{padding:48px 0 0}
+  section{margin-top:64px}
+  .wrap{padding:0 18px 72px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<div class="hero" id="top">
+  <span class="eyebrow">根子岳 東峰 · Aso, Kumamoto, Japan · 1,433 m · JST</span>
+  <h1>Project : Nekodake Sunset</h1>
+  <p class="sub">箱石峠에서 根子岳 東峰까지 오른 뒤, 西峰의 바위 첨봉과 中岳 화구 사이로 해가 걸리는 구도를 노렸습니다. PhotoPills로 10/28~11/3 7일을 비교해, 그 구도가 유지되는 마지노선이면서 하산길에 달이 가장 밝고 가장 빨리 뜨는 날 — 10월 28일을 촬영일로 정했습니다.</p>
+  <div class="hero-photo">
+    <a class="zoomable hero-stage" href="#" data-lightbox
+       data-title="Nekodake Sunset"
+       data-loc="根子岳 東峰 · Aso, Kumamoto, Japan"
+       data-full="../images/workflow/nekodake/result-main.jpg"
+       data-desc="<p>根子岳 東峰에서 본 일몰. 西峰의 뾰족한 바위 첨봉 사이로 해가 걸리고, 오른쪽 능선 너머로 中岳 화구의 분연이 옅게 흐릅니다.</p>"
+       data-specs="2026-10-28 · 17:29 JST">
+      <img src="../images/workflow/nekodake/result-main.jpg" alt="根子岳 東峰에서 본 일몰 — 西峰 첨봉과 中岳 화구 사이로 해가 걸리는 구도">
+      <span class="zb-badge">i</span>
+    </a>
+    <p class="cap">2026년 10월 28일 17:29 · 根子岳 東峰 · 실제 촬영 결과</p>
+  </div>
+</div>
+
+<section>
+  <span class="eyebrow">Before the trip · PhotoPills</span>
+  <h2>7일 비교 — 구도와 달이 함께 맞는 날을 찾다</h2>
+  <p class="lede narrow">10월 28일부터 11월 3일까지, 매일 일몰 시각의 태양 방위를 PhotoPills로 확인했습니다. 이 구간 전체에서 해가 <b>西峰과 中岳 화구 사이</b>로 걸리긴 하지만, 날짜가 지날수록 방위각이 조금씩 남쪽으로 밀려 구도가 서서히 빠져나갑니다. 동시에 달뜨는 시각도 매일 더 늦어지는데 — 하산은 해가 지고 난 뒤라 이 두 가지가 같이 맞는 날이 필요했습니다.</p>
+  <div class="plan-grid">
+    <div class="plan-card">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="10/28 (수) · PhotoPills"
+         data-loc="根子岳 西峰 기준 · Sun/Moon planner"
+         data-full="../images/workflow/nekodake/plan-1028.jpg"
+         data-desc="<p>일몰 17:29 @ 254.9° · 달뜸 18:45 @ 58.5° — 일몰 76분 뒤로, 7일 중 가장 빨리 뜨고 가장 밝은 달(거의 보름에 가까운 차오른 모습)입니다.</p>"
+         data-specs="">
+        <img src="../images/workflow/nekodake/plan-1028.jpg" alt="10월 28일 PhotoPills Sun/Moon 플래너">
+        <span class="zb-badge">i</span>
+      </a>
+      <div class="plan-cap"><b>Wed 10/28</b><span class="hit">17:29 @ 254.9° · 달 18:45 출 — 마지노선 &amp; 가장 밝은 달</span></div>
+    </div>
+    <div class="plan-card">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="10/29 (목) · PhotoPills"
+         data-loc="根子岳 西峰 기준 · Sun/Moon planner"
+         data-full="../images/workflow/nekodake/plan-1029.jpg"
+         data-desc="<p>일몰 17:28 @ 254.5° · 달뜸 19:44 @ 56.5° — 전날보다 방위가 0.4° 남쪽으로, 달은 1시간 늦게 뜹니다.</p>"
+         data-specs="">
+        <img src="../images/workflow/nekodake/plan-1029.jpg" alt="10월 29일 PhotoPills Sun/Moon 플래너">
+        <span class="zb-badge">i</span>
+      </a>
+      <div class="plan-cap"><b>Thu 10/29</b><span>17:28 @ 254.5° · 달 19:44 출</span></div>
+    </div>
+    <div class="plan-card">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="10/30 (금) · PhotoPills"
+         data-loc="根子岳 西峰 기준 · Sun/Moon planner"
+         data-full="../images/workflow/nekodake/plan-1030.jpg"
+         data-desc="<p>일몰 17:27 @ 254.1° · 달뜸 20:50 @ 57.1° — 달이 점점 더 늦게 뜨면서, 하산 초반의 달빛 구간이 짧아집니다.</p>"
+         data-specs="">
+        <img src="../images/workflow/nekodake/plan-1030.jpg" alt="10월 30일 PhotoPills Sun/Moon 플래너">
+        <span class="zb-badge">i</span>
+      </a>
+      <div class="plan-cap"><b>Fri 10/30</b><span>17:27 @ 254.1° · 달 20:50 출</span></div>
+    </div>
+    <div class="plan-card">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="10/31 (토) · PhotoPills"
+         data-loc="根子岳 西峰 기준 · Sun/Moon planner"
+         data-full="../images/workflow/nekodake/plan-1031.jpg"
+         data-desc="<p>일몰 17:26 @ 253.7° · 달뜸 22:00 @ 60.2° — 일몰부터 달뜨기까지 4시간 34분, 그 사이는 완전히 달빛 없이 하산해야 합니다.</p>"
+         data-specs="">
+        <img src="../images/workflow/nekodake/plan-1031.jpg" alt="10월 31일 PhotoPills Sun/Moon 플래너">
+        <span class="zb-badge">i</span>
+      </a>
+      <div class="plan-cap"><b>Sat 10/31</b><span>17:26 @ 253.7° · 달 22:00 출</span></div>
+    </div>
+    <div class="plan-card">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="11/1 (일) · PhotoPills"
+         data-loc="根子岳 西峰 기준 · Sun/Moon planner"
+         data-full="../images/workflow/nekodake/plan-1101.jpg"
+         data-desc="<p>일몰 17:25 @ 253.3° · 달뜸 23:11 @ 65.4° — 하산을 마치고도 한참 뒤에야 달이 뜹니다.</p>"
+         data-specs="">
+        <img src="../images/workflow/nekodake/plan-1101.jpg" alt="11월 1일 PhotoPills Sun/Moon 플래너">
+        <span class="zb-badge">i</span>
+      </a>
+      <div class="plan-cap"><b>Sun 11/1</b><span>17:25 @ 253.3° · 달 23:11 출</span></div>
+    </div>
+    <div class="plan-card">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="11/2 (월) · PhotoPills"
+         data-loc="根子岳 西峰 기준 · Sun/Moon planner"
+         data-full="../images/workflow/nekodake/plan-1102.jpg"
+         data-desc="<p>일몰 17:24 @ 252.9° · 이날은 자정 전 달뜸이 없습니다 — 저녁 내내 달빛 없이 하산해야 하는 날입니다. (달은 오후 13:24 @ 291.2°에 이미 짐)</p>"
+         data-specs="">
+        <img src="../images/workflow/nekodake/plan-1102.jpg" alt="11월 2일 PhotoPills Sun/Moon 플래너">
+        <span class="zb-badge">i</span>
+      </a>
+      <div class="plan-cap"><b>Mon 11/2</b><span>17:24 @ 252.9° · 저녁 내내 달 없음</span></div>
+    </div>
+    <div class="plan-card">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="11/3 (화) · PhotoPills"
+         data-loc="根子岳 西峰 기준 · Sun/Moon planner"
+         data-full="../images/workflow/nekodake/plan-1103.jpg"
+         data-desc="<p>일몰 17:23 @ 252.5° — 7일 중 가장 남쪽. 달은 이미 그날 새벽 00:19에 떠 있었지만, 가늘어진 그믐달이라 밝기가 크지 않습니다.</p>"
+         data-specs="">
+        <img src="../images/workflow/nekodake/plan-1103.jpg" alt="11월 3일 PhotoPills Sun/Moon 플래너">
+        <span class="zb-badge">i</span>
+      </a>
+      <div class="plan-cap"><b>Tue 11/3</b><span>17:23 @ 252.5° · 가느다란 그믐달</span></div>
+    </div>
+  </div>
+  <div class="note">
+    <b>7일 내내 서봉–중악 사이 구도 자체는 유지됩니다.</b> 하지만 방위가 매일 0.3~0.4°씩 남쪽으로 밀리고, 달뜨는 시각은 매일 더 늦어집니다 — 구도의 마지노선과 달빛 하산 조건이 같은 방향(더 늦기 전에)으로 좁혀지는 창이라, 가장 이른 날인 10월 28일이 두 조건 모두에서 최적이었습니다.
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Why Oct 28</span>
+  <h2>왜 10월 28일인가</h2>
+  <p class="lede narrow">날짜를 고른 이유는 두 갈래였고, 둘 다 10월 28일을 가리켰습니다.</p>
+  <div class="why-grid">
+    <div class="why-card">
+      <span class="tag">Composition · 마지노선</span>
+      <h3>西峰–中岳 사이 구도의 마지막 날</h3>
+      <p>해가 西峰 첨봉과 中岳 화구 사이로 걸리는 구도는 10월 28일부터 날씨만 맞으면 가능했지만, 날짜가 지날수록 일몰 방위가 계절에 따라 남쪽으로 이동하며 그 창이 좁아집니다. 10월 28일은 날씨 변수를 감안했을 때 이 구도를 노릴 수 있는 사실상의 마지노선이었습니다.</p>
+    </div>
+    <div class="why-card">
+      <span class="tag">Descent safety · 달빛</span>
+      <h3>하산길을 밝혀줄 가장 빠르고 밝은 달</h3>
+      <p>箱石峠 코스는 로프·사다리 구간이 있는 급경사 능선이라, 일몰 후 어두워진 뒤 하산은 변수를 최대한 줄여야 합니다. 비교한 7일 중 10월 28일이 일몰 후 가장 빨리(76분) 달이 뜨고, 그 달도 가장 밝은(거의 보름에 가까운) 날이었습니다.</p>
+    </div>
+  </div>
+  <table class="moon-table eng">
+    <thead>
+      <tr><th>Date</th><th>Sunset</th><th>Moonrise</th><th>Gap</th><th>Moon</th></tr>
+    </thead>
+    <tbody>
+      <tr class="pick"><td>10/28 Wed</td><td>17:29 @ 254.9°</td><td>18:45 @ 58.5°</td><td>+1h16m</td><td>near-full</td></tr>
+      <tr><td>10/29 Thu</td><td>17:28 @ 254.5°</td><td>19:44 @ 56.5°</td><td>+2h16m</td><td>waning gibbous</td></tr>
+      <tr><td>10/30 Fri</td><td>17:27 @ 254.1°</td><td>20:50 @ 57.1°</td><td>+3h23m</td><td>waning gibbous</td></tr>
+      <tr><td>10/31 Sat</td><td>17:26 @ 253.7°</td><td>22:00 @ 60.2°</td><td>+4h34m</td><td>waning</td></tr>
+      <tr><td>11/1 Sun</td><td>17:25 @ 253.3°</td><td>23:11 @ 65.4°</td><td>+5h46m</td><td>waning</td></tr>
+      <tr><td class="dim">11/2 Mon</td><td class="dim">17:24 @ 252.9°</td><td class="dim">— (moonset 13:24)</td><td class="dim">no moon all evening</td><td class="dim">—</td></tr>
+      <tr><td class="dim">11/3 Tue</td><td class="dim">17:23 @ 252.5°</td><td class="dim">00:19 @ 71.8° (that dawn)</td><td class="dim">already up, but thin</td><td class="dim">waning crescent</td></tr>
+    </tbody>
+  </table>
+  <p class="cap">Source: PhotoPills Planner, 根子岳 西峰 기준 · GMT+9</p>
+</section>
+
+<section>
+  <span class="eyebrow">Before the trip · overview</span>
+  <h2>東峰에서 본 구도 — 西峰과 中岳 화구 사이</h2>
+  <p class="lede narrow">촬영 지점은 根子岳 東峰 정상입니다. 서쪽으로 뾰족하게 솟은 西峰의 바위 첨봉과, 그 너머 가스가 피어오르는 中岳 화구(阿蘇山 활화산 분화구) 사이 좁은 틈으로 해가 지는 방향을 미리 지도에서 확인했습니다. 남쪽으로는 根子岳 南峰도 가까운 지형지물로 함께 잡혔습니다.</p>
+  <a class="zoomable" href="#" data-lightbox
+     data-title="Overview · 根子岳 東峰 — 西峰 / 南峰 / 中岳 화구"
+     data-loc="根子岳 일대 · Aso, Kumamoto"
+     data-full="../images/workflow/nekodake/overview-map.jpg"
+     data-desc="<p>東峰 정상(촬영 지점)을 기준으로 西峰·南峰·中岳 화구의 상대 위치와 일몰·일출 방위선을 표시한 사전 계획 지도입니다. 箱石峠登山口도 북쪽에 표시되어 있습니다.</p>"
+     data-specs="">
+    <img src="../images/workflow/nekodake/overview-map.jpg" alt="根子岳 일대 사전 계획 지도 — 東峰 촬영 지점과 西峰·南峰·中岳 화구">
+    <span class="zb-badge">i</span>
+  </a>
+  <p class="cap">촬영 지점(東峰) 기준 西峰·南峰·中岳 화구 및 箱石峠登山口 상대 위치</p>
+</section>
+
+<section>
+  <span class="eyebrow">Field notes · 箱石峠 코스</span>
+  <h2>箱石峠에서 東峰까지</h2>
+  <p class="lede narrow">근자악(根子岳) 자체가 「天を衝く岩峰」(하늘을 찌르는 바위 봉우리)로 불릴 만큼 험한 산이라, 출발 전 접근로와 위험 구간을 확인했습니다. 공식 코스 거리·소요시간 자료는 찾지 못했고, 아래는 트레일헤드 안내와 실제 등반 기록을 바탕으로 정리한 내용입니다.</p>
+  <div class="why-grid">
+    <div class="why-card">
+      <span class="tag">Access</span>
+      <h3>차량·택시로만 접근</h3>
+      <p>箱石峠登山口는 주차 공간이 5대 안팎으로 작고, 대중교통이 닿지 않습니다. JR宮地駅에서 大阿蘇タクシー(0967-22-0825) 등 택시를 이용하는 것이 일반적인 접근 방법입니다. 바로 옆 釣井尾根登山口까지는 도보 약 15분 거리입니다.</p>
+    </div>
+    <div class="why-card">
+      <span class="tag">Terrain</span>
+      <h3>평지 구간이 거의 없는 급등</h3>
+      <p>箱石釣井尾根 루트는 시작부터 정상까지 완만한 구간 없이 계속 오르막입니다. 로프 구간이 여러 차례 등장하고, 주의가 필요한 사다리 구간도 있습니다. 정상 직전에는 「미끄럼 주의」 표지와 함께 「이후 구간은 자기 책임」이라는 경고 표지가 서 있는 지점이 있습니다.</p>
+    </div>
+    <div class="why-card">
+      <span class="tag">Timing</span>
+      <h3>약 2시간 — 공식 수치 아님</h3>
+      <p>등반 기록의 사진 타임스탬프로 역산하면 등반에 약 2시간 안팎이 걸립니다. 공식 코스타임은 아니며, 일몰 후 같은 구간을 하산한다는 전제로 여유 있게 계획했습니다.</p>
+    </div>
+    <div class="why-card">
+      <span class="tag">Caution</span>
+      <h3>화산가스·기상 변수</h3>
+      <p>熊本県 등산신고서 기준으로, 화산가스 대비(수건 등 임시 마스크), 분화 징후 시 헬멧 착용, 위급 시 110 신고 등이 공통 안내사항으로 명시되어 있습니다. 中岳 분화구 인근은 화산 활동에 따라 통제될 수 있어 당일 상황을 확인해야 합니다.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">결과물</span>
+  <h2>10월 28일, 東峰에서</h2>
+  <div class="result-grid">
+    <div class="full">
+      <a class="zoomable" href="#" data-lightbox
+         data-title="Nekodake Sunset — Blue Hour Panorama"
+         data-loc="根子岳 東峰 · Aso, Kumamoto, Japan"
+         data-full="../images/workflow/nekodake/result-panorama.jpg"
+         data-desc="<p>일몰 직후 블루아워, 西峰 첨봉부터 中岳 방향까지 이어지는 능선 파노라마입니다. 오른쪽 봉우리 위로 분연이 옅게 흐릅니다.</p>"
+         data-specs="2026-10-28 · Blue hour">
+        <img src="../images/workflow/nekodake/result-panorama.jpg" alt="블루아워 파노라마 — 根子岳 능선">
+        <span class="zb-badge">i</span>
+      </a>
+      <p class="cap">블루아워 파노라마 · 西峰 첨봉 — 中岳 방향 능선</p>
+    </div>
+    <div>
+      <a class="zoomable" href="#" data-lightbox
+         data-title="Nekodake Sunset — Wide"
+         data-loc="根子岳 東峰 · Aso, Kumamoto, Japan"
+         data-full="../images/workflow/nekodake/result-main.jpg"
+         data-desc="<p>西峰 첨봉 사이로 해가 걸리는 순간, 16:9 와이드 구도.</p>"
+         data-specs="2026-10-28 · 17:29 JST">
+        <img src="../images/workflow/nekodake/result-main.jpg" alt="根子岳 일몰 — 와이드 구도">
+        <span class="zb-badge">i</span>
+      </a>
+      <p class="cap">와이드 구도 · 17:29</p>
+    </div>
+    <div>
+      <a class="zoomable" href="#" data-lightbox
+         data-title="Nekodake Sunset — Portrait"
+         data-loc="根子岳 東峰 · Aso, Kumamoto, Japan"
+         data-full="../images/workflow/nekodake/result-portrait.jpg"
+         data-desc="<p>같은 구도의 세로 프레임. 전경의 단풍이 함께 들어왔습니다.</p>"
+         data-specs="2026-10-28 · 17:29 JST">
+        <img src="../images/workflow/nekodake/result-portrait.jpg" alt="根子岳 일몰 — 세로 구도">
+        <span class="zb-badge">i</span>
+      </a>
+      <p class="cap">세로 구도 · 전경 단풍</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><b>계획</b> — PhotoPills로 10월 28일~11월 3일 7일간 根子岳 西峰 기준 일몰 방위와 달뜨는 시각을 비교했습니다. 西峰–中岳 화구 사이 구도가 유지되는 마지노선이자 하산길 달빛이 가장 빠르고 밝은 날로 10월 28일을 택했습니다.</p>
+  <p><b>코스</b> — 箱石峠登山口에서 箱石釣井尾根을 거쳐 根子岳 東峰(1,433m)까지. 공식 거리·코스타임 자료는 확인하지 못했으며, 접근·난이도 정보는 아래 출처를 참고했습니다.</p>
+  <p><b>Sources</b> — <a href="https://www.yamakei-online.com/trailhead/detail.php?id=1288" target="_blank" rel="noopener">箱石峠登山口 · yamakei-online</a> · <a href="https://yamap.com/activities/32022607/article" target="_blank" rel="noopener">箱石釣井尾根ルート 등반기 · YAMAP</a> · <a href="https://yamap.com/activities/44207286/article" target="_blank" rel="noopener">根子岳東峰 등반기 · YAMAP</a> · <a href="https://www.pref.kumamoto.jp/uploaded/attachment/235682.pdf" target="_blank" rel="noopener">根子岳登山届 · 熊本県</a></p>
+</footer>
+
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="lightbox-backdrop" data-lb-close></div>
+  <div class="lightbox-panel">
+    <button class="lightbox-close" type="button" data-lb-close aria-label="닫기">&times;</button>
+    <div class="lightbox-media"><img id="lbImg" src="" alt=""></div>
+    <div class="lightbox-body">
+      <h3 class="lightbox-title" id="lbTitle"></h3>
+      <p class="lightbox-loc" id="lbLoc"></p>
+      <div class="lightbox-desc" id="lbDesc"></div>
+      <div class="lightbox-specs" id="lbSpecs"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* zoomable photos + lightbox */
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbTitle = document.getElementById('lbTitle');
+  const lbLoc = document.getElementById('lbLoc');
+  const lbDesc = document.getElementById('lbDesc');
+  const lbSpecs = document.getElementById('lbSpecs');
+  let lastFocus = null;
+
+  function openLB(a){
+    lbImg.src = a.dataset.full || a.querySelector('img').src;
+    lbImg.alt = a.dataset.title || '';
+    lbTitle.textContent = a.dataset.title || '';
+    lbLoc.textContent = a.dataset.loc || '';
+    lbDesc.innerHTML = a.dataset.desc || '';
+    if (a.dataset.specs) { lbSpecs.textContent = a.dataset.specs; lbSpecs.hidden = false; }
+    else { lbSpecs.textContent = ''; lbSpecs.hidden = true; }
+    lastFocus = document.activeElement;
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    lb.querySelector('.lightbox-close').focus();
+  }
+  function closeLB(){
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    lbImg.src = '';
+    if (lastFocus) lastFocus.focus();
+  }
+  document.querySelectorAll('[data-lightbox]').forEach(a => {
+    a.addEventListener('click', e => { e.preventDefault(); openLB(a); });
+  });
+  lb.querySelectorAll('[data-lb-close]').forEach(el => { el.addEventListener('click', closeLB); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && lb.classList.contains('open')) closeLB();
+  });
+})();
+</script>
+
+</body>
+</html>
