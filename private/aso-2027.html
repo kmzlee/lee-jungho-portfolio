@@ -317,6 +317,25 @@ button.day.sel{border-color:var(--sun);background:#1d1814;transform:none;box-sha
   .cal-anim .day:not(.empty){opacity:1;transform:none}
   .stg,.nt-seg,.d-bar i{animation:none!important;opacity:1;transform:none}
 }
+
+/* ── moon-free nights (sky + foreground) ── */
+.d-star{display:inline-block;width:11px;height:11px;margin-right:auto;margin-left:8px;color:#fff;opacity:.9}
+.day.nomoon{border-color:rgba(255,255,255,.34);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,0) 46%),var(--surface)}
+button.day.nomoon:hover{border-color:rgba(255,255,255,.6)}
+button.day.nomoon.sel{border-color:var(--sun)}
+.lg-nomoon{background:var(--surface);border-color:rgba(255,255,255,.4)}
+.nm-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:18px}
+.nm-strip .k{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.nm-chip{
+  appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.03em;color:var(--ink);
+  background:var(--surface);border:1px solid rgba(255,255,255,.3);border-radius:9999px;padding:6px 12px;
+  transition:border-color .2s,background .2s;
+}
+.nm-chip:hover{border-color:rgba(255,255,255,.6);background:#202226}
+.nm-chip svg{width:10px;height:10px}
+.badge.white{border-color:rgba(255,255,255,.5);color:#fff}
+@media (max-width:700px){ .d-star{width:9px;height:9px;margin-left:4px} }
 </style>
 </head>
 <body>
@@ -324,7 +343,7 @@ button.day.sel{border-color:var(--sun);background:#1d1814;transform:none;box-sha
 <div class="wrap">
 
 <div class="hero" id="top">
-  <span class="eyebrow">阿蘇 · Kumamoto, Japan · 32.987°N 131.050°E · 936 m · JST<span class="private-tag"><i></i>Private · not published</span></span>
+  <span class="eyebrow">阿蘇 · Kumamoto, Japan · 32.987°N 131.050°E · 936 m · JST<span class="private-tag"><i></i>Private · unlisted</span></span>
   <h1>Project : ASO 2027</h1>
   <p class="sub">아소 칼데라를 동쪽 정면에 두고, 2027년 봄 은하수 풀 아치(180°~210°)를 24mm 세로 8×1 파노라마로 담는 계획입니다.<br>붉은 성운이 화려한 백조자리 Deneb이 고도 30°를 넘고, 아치가 프레임(65~70°) 안에 여유 있게 들어오는 시간만 골라 4–5월 달 없는 밤에 날씨를 보며 출발합니다.</p>
   <div class="hero-photo">
@@ -348,10 +367,12 @@ button.day.sel{border-color:var(--sun);background:#1d1814;transform:none;box-sha
   <div class="cal-legend">
     <span><i class="lg-box lg-ok"></i>촬영 가능 · 1시간 이상</span>
     <span><i class="lg-box lg-short"></i>짧음 · 40분–1시간</span>
+    <span><i class="lg-box lg-nomoon"></i><svg width="10" height="10" viewBox="0 0 12 12" style="margin-left:-2px"><path d="M6 0 L7.2 4.8 L12 6 L7.2 7.2 L6 12 L4.8 7.2 L0 6 L4.8 4.8 Z" fill="#fff"/></svg>밤새 달 없음 · 하늘·전경 모두</span>
     <span><i class="lg-box lg-off"></i>불가 · 달 / 40분 미만</span>
     <span><span class="d-tag" style="font-size:10px">New</span>달 위상 변경일</span>
     <span><span class="d-tag" style="font-size:10px">Eta-AQR</span>유성우 극대</span>
   </div>
+  <div class="nm-strip" id="nmStrip"></div>
   <div id="calendar"></div>
 </section>
 
@@ -427,7 +448,7 @@ button.day.sel{border-color:var(--sun);background:#1d1814;transform:none;box-sha
   <p><b>계산</b> — 태양·달·별 위치는 PyEphem으로 1분 간격 계산했습니다. 기준점 阿蘇 大観峰 부근 32.987°N 131.050°E, 936 m, JST. 일출·일몰은 표준 지평선 기준이며 실제 능선은 반영하지 않았습니다.</p>
   <p><b>조건</b> — Deneb ≥ 30°, 아치 꼭대기(은하수 중심선) ≤ 55° (프레임 65°) / ≤ 60° (프레임 70°), 아치 양 끝 345°–195°, 천문박명 사이, 달 지평선 아래.</p>
   <p><b>유성우</b> — 극대일은 IMO Meteor Shower Calendar 2027 기준.</p>
-  <p><b>Private</b> — 이 페이지는 <code>private/</code> 폴더에 있으며 git에서 제외되어 GitHub Pages에 올라가지 않습니다.</p>
+  <p><b>Private</b> — 사이트 메뉴와 Workflow 목록 어디에도 연결되지 않은 페이지입니다. 링크를 아는 사람만 열 수 있고, 검색엔진 색인에서도 제외했습니다.</p>
 </footer>
 
 </div>
@@ -461,6 +482,8 @@ const DATA = {"rows": [{"mo": 4, "day": 1, "label": "4/1(목)→4/2", "ss": "18:
   const mdw = d => `${md(d)} (${DOW[d.getDay()]})`;
   const pct = m => (m / 720 * 100).toFixed(3) + '%';
   const avail = R.filter(o => o.w);
+  const STAR = '<svg class="d-star" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0 L7.2 4.8 L12 6 L7.2 7.2 L6 12 L4.8 7.2 L0 6 L4.8 4.8 Z" fill="currentColor"/></svg>';
+  const noMoon = o => o.dark.length === 1 && o.dark[0][0] <= o.adm + 1 && o.dark[0][1] >= o.awm - 2;
 
   /* every time belongs to the night that starts on the cell's evening:
      12:00–23:59 → that evening's date, 00:00–11:59 → the next morning */
@@ -521,7 +544,7 @@ const DATA = {"rows": [{"mo": 4, "day": 1, "label": "4/1(목)→4/2", "ss": "18:
     const m = document.createElement('div');
     m.className = 'cal-month cal-anim';
     m.innerHTML = `<div class="cal-head"><h3 class="cal-title">${MON[mo]} <span>2027</span></h3>
-      <div class="cal-sum"><span>가능 <b>${ok.length}</b>밤</span><span>1시간↑ <b class="s">${strong.length}</b>밤</span><span>New moon <b>${nm.d} ${nm.t}</b></span></div></div>
+      <div class="cal-sum"><span>가능 <b>${ok.length}</b>밤</span><span>1시간↑ <b class="s">${strong.length}</b>밤</span><span>달 없는 밤 <b>${rows.filter(noMoon).length}</b></span><span>New moon <b>${nm.d} ${nm.t}</b></span></div></div>
       <div class="cal-dow">${DOW.map(d => `<span>${d}</span>`).join('')}</div>`;
     const first = new Date(2027, mo - 1, 1).getDay();
     const cells = Array(first).fill(null).concat(rows);
@@ -534,8 +557,8 @@ const DATA = {"rows": [{"mo": 4, "day": 1, "label": "4/1(목)→4/2", "ss": "18:
         if (o.w) {
           const L = wlen(o.w), short = L < 60;
           week.insertAdjacentHTML('beforeend',
-            `<button class="day ${short ? 'short' : ''}" type="button" data-id="${o.mo}-${o.day}" style="--k:${k++}" aria-label="${mdw(dObj(o))} 밤 · 촬영창 ${o.ws[0]}–${o.ws[1]}">
-              <span class="d-top"><span class="d-num">${o.day}</span>${moonIcon(o.il, o.age)}</span>${tags}
+            `<button class="day ${short ? 'short' : ''} ${noMoon(o) ? 'nomoon' : ''}" type="button" data-id="${o.mo}-${o.day}" style="--k:${k++}" aria-label="${mdw(dObj(o))} 밤 · 촬영창 ${o.ws[0]}–${o.ws[1]}${noMoon(o) ? ' · 밤새 달 없음' : ''}">
+              <span class="d-top"><span class="d-num">${o.day}</span>${noMoon(o) ? STAR : ''}${moonIcon(o.il, o.age)}</span>${tags}
               <span class="d-win">${o.ws[0]}–${o.ws[1]}</span>
               <span class="d-sub">${dur(L)} · Moon ${o.il}%</span>
               <span class="d-bar"><i style="--w:${Math.min(100, L / 102 * 100).toFixed(1)}%"></i></span>
@@ -557,6 +580,16 @@ const DATA = {"rows": [{"mo": 4, "day": 1, "label": "4/1(목)→4/2", "ss": "18:
     root.appendChild(m);
   });
 
+  /* moon-free strip */
+  const strip = document.getElementById('nmStrip');
+  if (strip) {
+    strip.innerHTML = '<span class="k">Moon-free · sky + foreground</span>' + R.filter(o => o.w && noMoon(o)).map(o =>
+      `<button class="nm-chip" type="button" data-go="${o.mo}-${o.day}">${STAR.replace('d-star', '')}${mdw(dObj(o))} 밤</button>`).join('');
+    strip.querySelectorAll('[data-go]').forEach(c => c.addEventListener('click', () => {
+      const b = root.querySelector(`button.day[data-id="${c.dataset.go}"]`); if (b) { if (b !== selBtn) open(b, true); else b.scrollIntoView({behavior: 'smooth', block: 'center'}); }
+    }));
+  }
+
   /* entry cascade when each month scrolls into view */
   const months = root.querySelectorAll('.cal-anim');
   if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -570,6 +603,7 @@ const DATA = {"rows": [{"mo": 4, "day": 1, "label": "4/1(목)→4/2", "ss": "18:
     const isNew = o.il <= 3, isPeak = o.mo === 5 && o.day === 5;
     const badges = [
       L >= 60 ? ['sun', 'Full window'] : ['', 'Short window'],
+      noMoon(o) ? ['white', 'No moon all night'] : null,
       isNew ? ['', 'New moon'] : null,
       isPeak ? ['sun', 'Eta-Aquariids peak'] : null
     ].filter(Boolean).map(([c, t]) => `<span class="badge ${c}">${t}</span>`).join('');
