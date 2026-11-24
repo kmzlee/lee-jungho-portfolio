@@ -517,6 +517,11 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
 .hafold[open] summary::before{content:"− "}
 .hafold[open] summary{color:var(--ink-2)}
 
+.tnoimg span{font-size:22px;letter-spacing:0}
+.tnoimg.hc{background:radial-gradient(circle at 50% 45%,rgba(224,160,108,.26),rgba(224,160,108,.04) 62%,#0d0e10)}
+.tnoimg.hc span{font-size:12px;color:#f0c49e}
+.tinfo .k .done{color:var(--sun)}
+
 </style>
 </head>
 <body>
@@ -583,6 +588,7 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
   <div class="why-grid">
     <div class="why-card"><span class="tag">Deep sky</span><h3>고도 20° · 달 아래 · 1시간</h3><p>천문박명 사이, 달이 지평선 아래, 타겟 고도 20° 이상일 때만. 라이트는 새벽 천문박명 <b>5분 전</b> 마감. 1시간 이상 열리는 밤만 "가능"으로 셉니다.</p></div>
     <div class="why-card"><span class="tag">One night · one filter</span><h3>한 밤 = 한 필터</h3><p>RGB 밤이면 RGB만, Hα 밤이면 Hα만. 마감 뒤 다크 15장 → 플랫 → 바이어스. 장수는 RGB 180초 · Hα 240초(+5초) 기준.</p></div>
+    <div class="why-card"><span class="tag">Hα Library</span><h3>필드 중심 30°</h3><p>Hα 라이브러리 필드(A–G)와 여름 후보는 프레임 중심 고도 30° 이상일 때만. 나머지 조건은 딥스카이와 같습니다. 필드 구성·GoTo·순서는 Ha Library (Winter) 기준.</p></div>
     <div class="why-card"><span class="tag">Arch</span><h3>40분 미만은 불가</h3><p>아치 촬영창은 천문박명 사이 · 달 아래 · 꼭대기 20°~55°(또는 60°) · 40분 이상일 때만 표시합니다.</p></div>
   </div>
 </section>
@@ -625,7 +631,7 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
   const len = w => w ? w[1] - w[0] : 0;
   const darkTotal = n => n.dk.reduce((s, [a, b]) => s + b - a, 0);
   const darkLongest = n => n.dk.length ? n.dk.reduce((x, y) => (y[1] - y[0] > x[1] - x[0] ? y : x)) : null;
-  const DS = TG.filter(t => t.kind === 'ds'), HA = TG.filter(t => t.kind === 'ha');
+  const DS = TG.filter(t => t.kind === 'ds'), HA = TG.filter(t => t.kind !== 'ds');
 
   /* time tag relative to the night that starts on date s (minutes since noon) */
   function when(s, m){
@@ -767,11 +773,12 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
       const sc = t.kind === 'ds' ? `RGB ${subs(L, 'rgb')} · Hα ${subs(L, 'ha')}장` : `Hα ${subs(L, 'ha')}장`;
       const media = t.img
         ? `<div class="tmedia tthumb"><img class="ph" src="../images/deepsky/img/${t.key}.jpg" alt="${t.name}" loading="lazy"><img class="fov" src="../images/deepsky/fov/${t.key}.jpg" alt="${t.name} 화각" loading="lazy"><button class="flip" type="button">Photo</button></div>`
-        : `<div class="tthumb tnoimg"><span>Hα</span></div>`;
+        : t.thumb ? `<div class="tmedia tthumb"><img class="ph" src="${t.thumb}" alt="${t.name}" loading="lazy"></div>`
+        : `<div class="tthumb tnoimg ${t.kind === 'hc' ? 'hc' : ''}"><span>${t.field || 'Hα'}</span></div>`;
       return `<div class="trow ${short ? 'short' : ''}">
         ${media}
         <div class="tinfo">
-          <div class="k"><i style="background:${t.hex}"></i>${t.kind === 'ds' ? 'Deep sky' : 'Hα library'}${t.status ? ` · ${t.status}` : ''}</div>
+          <div class="k"><i style="background:${t.hex}"></i>${t.kind === 'ds' ? 'Deep sky' : t.kind === 'ha' ? '<span style="text-transform:none">Hα</span> Library (Winter)' : '<span style="text-transform:none">Hα</span> · Summer candidate'}${t.status ? ` · <span class="${/완료/.test(t.status) ? 'done' : ''}">${t.status}</span>` : ''}</div>
           <h5>${t.name}</h5>
           <div class="spec">${t.lensFull || t.lens}${t.fov ? ' · ' + t.fov : ''}</div>
           ${t.note ? `<p>${t.note}</p>` : ''}
@@ -782,7 +789,8 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
         </div></div>`;
     };
     const gds = rows.filter(([t]) => t.kind === 'ds').map(card).join('');
-    const haRows = rows.filter(([t]) => t.kind === 'ha'), gha = haRows.map(card).join(''), nha = haRows.length;
+    const haRows = rows.filter(([t]) => t.kind !== 'ds').sort((a, b) => (a[0].kind === b[0].kind ? (a[0].field || '').localeCompare(b[0].field || '') : a[0].kind === 'ha' ? -1 : 1)), gha = haRows.map(card).join(''), nha = haRows.length;
+    const nhaA = haRows.filter(([t]) => t.field).map(([t]) => t.field).join('·');
     const hours = Array.from({length: 17}, (_, h) => `<span style="left:${pct(AX0 + h * 60)}">${pad((16 + h) % 24)}</span>`).join('');
     const mk = (m, l) => { if (m == null) return ''; const p = (m - AX0) / AXN; return `<span class="nt-mark ${p < .08 ? 'l' : p > .92 ? 'r' : ''}" style="left:${pct(m)}">${l}</span>`; };
     const marks = [[n.ad, `−18° ${hm(n.ad)}`], [n.den30, `Deneb 30° ${hm(n.den30)}`], [n.aw, `−18° ${hm(n.aw)}`]].filter(x => x[0] != null).sort((a, b) => a[0] - b[0]);
@@ -813,9 +821,9 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
         <div class="nt-key"><span><i style="background:#25282d"></i>Astronomical night</span><span><i style="background:rgba(143,180,255,.42)"></i>Moon up</span><span><i style="background:var(--sun)"></i>Arch · 65°</span><span><i style="background:rgba(255,122,23,.32)"></i>Arch · 70°</span></div>
       </div>
       <div class="gantt stg" style="--i:4">
-        <div class="g-head"><h4>Targets tonight · 고도 20°↑ · 달 아래 · 박명 5분 전 마감</h4><span>장수 = RGB 180초 / Hα 240초 기준 · 막대 = 16시 → 08시</span></div>
+        <div class="g-head"><h4>Targets tonight · 딥스카이 20°↑ · <span style="text-transform:none">Hα</span> 필드 30°↑ · 달 아래 · 박명 5분 전 마감</h4><span>장수 = RGB 180초 / Hα 240초 기준 · 막대 = 16시 → 08시</span></div>
         ${gds || '<div class="g-off">오늘 밤 열리는 딥스카이 타겟이 없습니다.</div>'}
-        ${gha ? `<details class="hafold"><summary>Hα 라이브러리 ${nha}개 펼치기</summary>${gha}</details>` : ''}
+        ${gha ? `<details class="hafold"><summary>Hα 라이브러리 ${nha}개 펼치기${nhaA ? ` · 필드 ${nhaA}` : ''}</summary>${gha}</details>` : ''}
         ${offT.length && (gds || gha) ? `<div class="g-off">불가: ${offT.map(t => t.short).join(' · ')}</div>` : ''}
       </div>
       <div class="wd-grid">
