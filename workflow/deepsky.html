@@ -491,6 +491,32 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
   .site-btn{padding:7px 14px}
 }
 
+/* detail: target rows with image */
+.trow{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:center;padding:14px 0;border-top:1px solid var(--line-2)}
+.trow:first-of-type{border-top:0}
+.tthumb{border-radius:6px;overflow:hidden;aspect-ratio:3/2;border:1px solid var(--line)}
+.tthumb .flip{right:6px;bottom:6px;padding:3px 8px;font-size:9px}
+.tnoimg{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,rgba(224,108,117,.28),rgba(224,108,117,.04) 62%,#0d0e10)}
+.tnoimg span{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;letter-spacing:.08em;color:#f0a0a7}
+.tinfo .k{display:flex;align-items:center;gap:7px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tinfo .k i{width:7px;height:7px;border-radius:50%}
+.tinfo h5{margin:5px 0 0;font-size:15px;font-weight:400;color:var(--ink);letter-spacing:-.01em}
+.tinfo .spec{margin-top:3px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;color:var(--ink-2)}
+.tinfo p{margin:6px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink-2)}
+.twin .g-time{text-align:left;margin-bottom:7px}
+.trow.short{opacity:.55}
+@media (max-width:860px){
+  .trow{grid-template-columns:110px minmax(0,1fr)}
+  .twin{grid-column:1/-1}
+}
+
+.hafold{margin-top:6px;border-top:1px solid var(--line-2)}
+.hafold summary{cursor:pointer;list-style:none;padding:12px 0 6px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.08em;color:#f0a0a7}
+.hafold summary::-webkit-details-marker{display:none}
+.hafold summary::before{content:"+ ";color:var(--muted)}
+.hafold[open] summary::before{content:"− "}
+.hafold[open] summary{color:var(--ink-2)}
+
 </style>
 </head>
 <body>
@@ -512,8 +538,6 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
     <span><i class="lg-box lg-ok"></i>달 없는 암흑 시간 (막대)</span>
     <span><i class="lg-box lg-off"></i>달빛 밤 · 1시간 미만</span>
     <span><i class="lg-box lg-nomoon"></i>밤새 달 없음</span>
-    <span><span style="display:inline-flex;gap:3px"><i style="width:7px;height:7px;border-radius:50%;background:#B8842A;display:inline-block"></i><i style="width:7px;height:7px;border-radius:50%;background:#6FC08A;display:inline-block"></i><i style="width:7px;height:7px;border-radius:50%;background:#8b5cf6;display:inline-block"></i><i style="width:7px;height:7px;border-radius:50%;background:#C74A61;display:inline-block"></i><i style="width:7px;height:7px;border-radius:50%;background:#2A9DBF;display:inline-block"></i></span>딥스카이 1h↑</span>
-    <span><span class="d-tag" style="font-size:10px;color:#e06c75;text-transform:none">Hα n</span>Hα 후보 1h↑</span>
     <span><span class="d-arch" style="font-size:10px">Arch</span>은하수 아치</span>
   </div>
   <div class="mnav"><button class="icon-btn" id="mPrev" type="button" aria-label="이전 달">&#8592;</button><button class="icon-btn" id="mNext" type="button" aria-label="다음 달">&#8594;</button><div class="mstrip" id="mstrip"></div></div>
@@ -539,38 +563,10 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
       <a href="https://www.google.com/maps/search/?api=1&query=地蔵峠 南阿蘇" target="_blank" rel="noopener">Google Maps ↗</a></div></div>
 </section>
 
-<section id="targets">
-  <span class="eyebrow">Targets</span>
-  <h2>타겟</h2>
-  <p class="lede narrow">버튼에 적힌 것이 지금 보고 있는 쪽입니다 — 참고 사진 ↔ Stellarium 화각 캡처.</p>
-  <div class="tcards">
-    <article class="tcard">
-      <div class="tmedia"><img class="ph" src="../images/deepsky/img/sadr.jpg" alt="Sadr / IC 1318 참고 사진" loading="lazy"><img class="fov" src="../images/deepsky/fov/sadr.jpg" alt="Sadr / IC 1318 Stellarium 화각" loading="lazy"><button class="flip" type="button">Photo</button></div>
-      <div class="tbody"><div class="k"><i style="background:#B8842A"></i>Deep sky · Sadr</div><h3>Sadr / IC 1318</h3>
-        <div class="spec">FE 24-70 GM II @ 70 mm · f/2.8 · 28.8° × 19.4°</div><p>IC 1318 중심. 북아메리카·펠리컨·초승달·튤립 포함, <b>베일은 아래 끝에 걸칩니다</b>.</p></div>
-    </article>
-    <article class="tcard">
-      <div class="tmedia"><img class="ph" src="../images/deepsky/img/et.jpg" alt="Elephant Trunk / IC 1396 참고 사진" loading="lazy"><img class="fov" src="../images/deepsky/fov/et.jpg" alt="Elephant Trunk / IC 1396 Stellarium 화각" loading="lazy"><button class="flip" type="button">Photo</button></div>
-      <div class="tbody"><div class="k"><i style="background:#6FC08A"></i>Deep sky · 코끼리코</div><h3>Elephant Trunk / IC 1396</h3>
-        <div class="spec">FE 100-400 GM @ 400 mm · f/5.6 · 5.1° × 3.4°</div><p>IC 1396 복합체 전체가 한 프레임. <b>코끼리코(vdB 142)는 중심 서쪽의 작은 부분</b>이고, 붉은 가넷 스타 μ Cep가 위쪽에 들어옵니다.</p></div>
-    </article>
-    <article class="tcard">
-      <div class="tmedia"><img class="ph" src="../images/deepsky/img/pcal.jpg" alt="Pleiades · California 참고 사진" loading="lazy"><img class="fov" src="../images/deepsky/fov/pcal.jpg" alt="Pleiades · California Stellarium 화각" loading="lazy"><button class="flip" type="button">Photo</button></div>
-      <div class="tbody"><div class="k"><i style="background:#8b5cf6"></i>Deep sky · M45·캘리포니아</div><h3>Pleiades · California</h3>
-        <div class="spec">FE 100-400 GM @ 100 mm · f/4.5 · 20.4° × 13.6°</div><p>ζ Per(Atik) 중심 · GTi 그대로 긴 변 남북. 캘리포니아·먼지·플레이아데스가 한 프레임.</p></div>
-    </article>
-    <article class="tcard">
-      <div class="tmedia"><img class="ph" src="../images/deepsky/img/bloop.jpg" alt="Barnard&#x27;s Loop 참고 사진" loading="lazy"><img class="fov" src="../images/deepsky/fov/bloop.jpg" alt="Barnard&#x27;s Loop Stellarium 화각" loading="lazy"><button class="flip" type="button">Photo</button></div>
-      <div class="tbody"><div class="k"><i style="background:#C74A61"></i>Deep sky · 바너드 루프</div><h3>Barnard&#x27;s Loop</h3>
-        <div class="spec">Samyang AF 50 F1.4 FE II · f/2.0 · 39.5° × 26.9°</div><p><b>가로 구도 · 50 mm</b>. 루프 전체 + M42 + 말머리 + 마녀머리까지 한 장에.</p></div>
-    </article>
-    <article class="tcard">
-      <div class="tmedia"><img class="ph" src="../images/deepsky/img/hh.jpg" alt="Horsehead / IC 434 참고 사진" loading="lazy"><img class="fov" src="../images/deepsky/fov/hh.jpg" alt="Horsehead / IC 434 Stellarium 화각" loading="lazy"><button class="flip" type="button">Photo</button></div>
-      <div class="tbody"><div class="k"><i style="background:#2A9DBF"></i>Deep sky · 말머리</div><h3>Horsehead / IC 434</h3>
-        <div class="spec">FE 100-400 GM @ 400 mm · f/5.6 · 5.1° × 3.4°</div><p>알니타크·불꽃·말머리·NGC 2023이 한 프레임. <b>M42는 3.5° 밖</b>이라 안 들어옵니다.</p></div>
-    </article></div>
-  <h3 class="sub-h">Hα 라이브러리 — 트래킹 파노라마 블렌딩용</h3>
-  <div class="halist"><div class="harow"><span class="n">Heart &amp; Soul</span><span class="c">RA 02:41 · Dec +61°</span><span class="l">50 mm Hα</span><span class="s done">2h12m 완료</span></div><div class="harow"><span class="n">California · Flaming Star</span><span class="c">RA 04:35 · Dec +33°</span><span class="l">50 mm Hα</span><span class="s ">후보</span></div><div class="harow"><span class="n">Eridanus Loop + Barnard&#x27;s Loop</span><span class="c">RA 04:50 · Dec -08°</span><span class="l">24 mm Hα</span><span class="s ">목표 약 8h</span></div><div class="harow"><span class="n">Sh2-240 · Jellyfish · Monkey Head</span><span class="c">RA 06:00 · Dec +24°</span><span class="l">50 mm Hα</span><span class="s ">후보</span></div><div class="harow"><span class="n">Rosette · Cone</span><span class="c">RA 06:36 · Dec +07°</span><span class="l">50 mm Hα</span><span class="s ">후보</span></div><div class="harow"><span class="n">Seagull IC 2177</span><span class="c">RA 07:04 · Dec -10°</span><span class="l">50 mm Hα</span><span class="s ">후보</span></div><div class="harow"><span class="n">Sh2-27 · ζ Oph</span><span class="c">RA 16:37 · Dec -10°</span><span class="l">50 mm Hα</span><span class="s ">후보</span></div><div class="harow"><span class="n">Lagoon · Trifid · Omega · Eagle</span><span class="c">RA 18:12 · Dec -19°</span><span class="l">50 mm Hα</span><span class="s ">후보</span></div><div class="harow"><span class="n">Cygnus · North America · Pelican</span><span class="c">RA 20:45 · Dec +42°</span><span class="l">50 mm Hα</span><span class="s ">후보</span></div></div>
+<section id="reference">
+  <span class="eyebrow">Reference</span>
+  <h2>은하수 아치 · 유성우</h2>
+  <p class="lede narrow">타겟별 사진·화각·촬영 시간은 달력에서 날짜를 누르면 그 밤 기준으로 나옵니다.</p>
   <h3 class="sub-h">은하수 아치</h3>
   <div class="why-grid">
     <div class="why-card"><span class="tag">Summer arch · 3–7월</span><h3>Deneb 30°부터</h3><p>백조자리 Deneb 고도 30° 이상 + 은하수 중심 10° 이상. 봄에는 새벽, 여름에는 초저녁에 열립니다. ASO 2027이 이 아치입니다.</p></div>
@@ -690,17 +686,15 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
   function cell(d, k){
     const n = night(site, d), dt = dateOf(d);
     const dark = darkTotal(n), off = dark < 60;
-    const dsOK = DS.filter(t => len(n.tw[t.key]) >= 60), haOK = HA.filter(t => len(n.tw[t.key]) >= 60);
     const tags = [];
     if (meteorOn[d]) tags.push(`<span class="d-tag">${meteorOn[d].tag}</span>`);
     if (phaseOn[d]) tags.push(`<span class="d-tag moon">${PHN[phaseOn[d][0]]} ${phaseOn[d][1]}</span>`);
-    const arch = n.ar.su ? '<span class="d-arch">Summer arch</span>' : n.ar.wi ? '<span class="d-arch w">Winter arch</span>'
-               : (n.ar.su2 || n.ar.wi2) ? `<span class="d-arch ${n.ar.wi2 ? 'w' : ''}" style="opacity:.6">Arch · 70°</span>` : '';
+    const arch = n.ar.su ? '<span class="d-arch">Summer arch</span>' : n.ar.wi ? '<span class="d-arch w">Winter arch</span>' : '';
     const cls = ['day', off ? 'off' : '', n.nm ? 'nomoon' : '', d < TODAY ? 'past' : '', d === TODAY ? 'today' : ''].join(' ');
     return `<button class="${cls}" type="button" data-d="${d}" style="--k:${k}" aria-label="${mdw(dt)} 밤 · 달 없는 암흑 ${dur(dark)}">
       <span class="d-top"><span class="d-num">${dt.getDate()}${d === TODAY ? '<span class="d-today">TONIGHT</span>' : ''}</span>${n.nm ? STAR : ''}${moonIcon(n.il, n.age)}</span>
       ${tags.join('')}
-      ${off ? '' : `<span class="d-dots">${dsOK.map(t => `<i style="background:${t.hex}" title="${t.short}"></i>`).join('')}${haOK.length ? `<span class="ha">Hα ${haOK.length}</span>` : ''}</span>${arch}`}
+      ${off ? '' : arch}
       ${off ? `<span class="d-off">Moon ${n.il}%</span>` : `<span class="d-win">${dur(dark)}</span><span class="d-bar"><i style="--w:${Math.min(100, dark / 600 * 100).toFixed(1)}%"></i></span>`}
     </button>`;
   }
@@ -768,14 +762,27 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
     }).join('');
     const rows = TG.map(t => [t, n.tw[t.key]]).filter(([, w]) => w).sort((a, b) => (a[0].kind === b[0].kind ? len(b[1]) - len(a[1]) : a[0].kind === 'ds' ? -1 : 1));
     const offT = TG.filter(t => !n.tw[t.key]);
-    const g = rows.map(([t, w]) => {
+    const card = ([t, w]) => {
       const L = len(w), short = L < 60;
       const sc = t.kind === 'ds' ? `RGB ${subs(L, 'rgb')} · Hα ${subs(L, 'ha')}장` : `Hα ${subs(L, 'ha')}장`;
-      return `<div class="g-row ${short ? 'short' : ''}">
-        <div class="g-name"><i style="background:${t.hex}"></i><span>${t.short}<small>${t.lens}</small></span></div>
-        <div class="g-track"><span class="nt-seg" style="left:${pct(w[0])};width:${wid(w[0], w[1])};background:${t.hex};animation-delay:.5s"></span></div>
-        <div class="g-time">${hm(w[0])}–${hm(w[1])}<small>${dur(L)} · ${short ? '1시간 미만' : sc}</small></div></div>`;
-    }).join('');
+      const media = t.img
+        ? `<div class="tmedia tthumb"><img class="ph" src="../images/deepsky/img/${t.key}.jpg" alt="${t.name}" loading="lazy"><img class="fov" src="../images/deepsky/fov/${t.key}.jpg" alt="${t.name} 화각" loading="lazy"><button class="flip" type="button">Photo</button></div>`
+        : `<div class="tthumb tnoimg"><span>Hα</span></div>`;
+      return `<div class="trow ${short ? 'short' : ''}">
+        ${media}
+        <div class="tinfo">
+          <div class="k"><i style="background:${t.hex}"></i>${t.kind === 'ds' ? 'Deep sky' : 'Hα library'}${t.status ? ` · ${t.status}` : ''}</div>
+          <h5>${t.name}</h5>
+          <div class="spec">${t.lensFull || t.lens}${t.fov ? ' · ' + t.fov : ''}</div>
+          ${t.note ? `<p>${t.note}</p>` : ''}
+        </div>
+        <div class="twin">
+          <div class="g-time">${hm(w[0])}–${hm(w[1])}<small>${dur(L)} · ${short ? '1시간 미만' : sc}</small></div>
+          <div class="g-track"><span class="nt-seg" style="left:${pct(w[0])};width:${wid(w[0], w[1])};background:${t.hex};animation-delay:.5s"></span></div>
+        </div></div>`;
+    };
+    const gds = rows.filter(([t]) => t.kind === 'ds').map(card).join('');
+    const haRows = rows.filter(([t]) => t.kind === 'ha'), gha = haRows.map(card).join(''), nha = haRows.length;
     const hours = Array.from({length: 17}, (_, h) => `<span style="left:${pct(AX0 + h * 60)}">${pad((16 + h) % 24)}</span>`).join('');
     const mk = (m, l) => { if (m == null) return ''; const p = (m - AX0) / AXN; return `<span class="nt-mark ${p < .08 ? 'l' : p > .92 ? 'r' : ''}" style="left:${pct(m)}">${l}</span>`; };
     const marks = [[n.ad, `−18° ${hm(n.ad)}`], [n.den30, `Deneb 30° ${hm(n.den30)}`], [n.aw, `−18° ${hm(n.aw)}`]].filter(x => x[0] != null).sort((a, b) => a[0] - b[0]);
@@ -806,9 +813,10 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
         <div class="nt-key"><span><i style="background:#25282d"></i>Astronomical night</span><span><i style="background:rgba(143,180,255,.42)"></i>Moon up</span><span><i style="background:var(--sun)"></i>Arch · 65°</span><span><i style="background:rgba(255,122,23,.32)"></i>Arch · 70°</span></div>
       </div>
       <div class="gantt stg" style="--i:4">
-        <div class="g-head"><h4>Targets · 고도 20°↑ · 달 아래 · 박명 5분 전 마감</h4><span>장수 = RGB 180초 / Hα 240초 기준</span></div>
-        ${g || '<div class="g-off">오늘 밤은 20분 이상 열리는 타겟이 없습니다.</div>'}
-        ${offT.length && g ? `<div class="g-off">불가: ${offT.map(t => t.short).join(' · ')}</div>` : ''}
+        <div class="g-head"><h4>Targets tonight · 고도 20°↑ · 달 아래 · 박명 5분 전 마감</h4><span>장수 = RGB 180초 / Hα 240초 기준 · 막대 = 16시 → 08시</span></div>
+        ${gds || '<div class="g-off">오늘 밤 열리는 딥스카이 타겟이 없습니다.</div>'}
+        ${gha ? `<details class="hafold"><summary>Hα 라이브러리 ${nha}개 펼치기</summary>${gha}</details>` : ''}
+        ${offT.length && (gds || gha) ? `<div class="g-off">불가: ${offT.map(t => t.short).join(' · ')}</div>` : ''}
       </div>
       <div class="wd-grid">
         <div class="wd-group stg" style="--i:5"><h4>Sun</h4>
@@ -853,6 +861,7 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
     openDet = det;
     bodyEl.querySelectorAll('[data-nav]').forEach(x => x.addEventListener('click', () => step(+x.dataset.nav)));
     bodyEl.querySelector('[data-close]').addEventListener('click', close);
+    bodyEl.querySelectorAll('.flip').forEach(x => x.addEventListener('click', e => { e.stopPropagation(); const m = x.closest('.tmedia'); const f = m.classList.toggle('flipped'); x.textContent = f ? 'Stellarium FOV' : 'Photo'; }));
     bodyEl.querySelectorAll('.srow').forEach(x => x.addEventListener('click', e => { if (e.target.closest('a')) return; setSite(x.dataset.s); }));
     if (scroll) setTimeout(() => btn.scrollIntoView({behavior: 'smooth', block: 'nearest'}), 80);
   }
@@ -873,11 +882,6 @@ button.day.off.sel{border-color:var(--hair-2);box-shadow:0 0 0 1px var(--hair-2)
 
   document.querySelectorAll('.mrow').forEach(r => { if (r.dataset.n < TODAY) r.classList.add('past'); });
 
-  /* ── targets: photo ↔ FOV ── */
-  document.querySelectorAll('.flip').forEach(b => b.addEventListener('click', () => {
-    const m = b.closest('.tmedia'); const f = m.classList.toggle('flipped');
-    b.textContent = f ? 'Stellarium FOV' : 'Photo';
-  }));
 })();
 
 </script>
